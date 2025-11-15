@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MOCK_MEDIA } from '../mock/media';
+import { MOCK_MEDIA } from '../../mock/media';
 
 export default function CatalogPage() {
   return (

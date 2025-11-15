@@ -1,4 +1,5 @@
 {
+  "catalog": "Catalog",
   "coming-soon": "Coming Soon",
   "contact-us": "Contact US",
   "documentation": "Documentation",
@@ -6,7 +7,9 @@
   "error-404": "Error 404",
   "error-500": "Error 500",
   "full-page": "Full Page Example",
+  "home": "Home",
   "maintenance": "Maintenance",
+  "media": "Media",
   "messages": "Messages",
   "others": "Others",
   "pages": "Pages",

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getById, type Media } from '../../mock/media';
+import { getById, type Media } from '../../../mock/media';
 
 export default async function MoviePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params; // 👈 unwrap the Promise
