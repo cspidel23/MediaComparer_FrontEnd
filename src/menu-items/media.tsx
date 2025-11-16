@@ -5,12 +5,13 @@ import { FormattedMessage } from 'react-intl';
 import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import AppstoreOutlined from '@ant-design/icons/AppstoreOutlined';
+import SwapOutlined from '@ant-design/icons/SwapOutlined';
 
 // type
 import { NavItemType } from 'types/menu';
 
 // icons
-const icons = { PlayCircleOutlined, HomeOutlined, AppstoreOutlined };
+const icons = { PlayCircleOutlined, HomeOutlined, AppstoreOutlined, SwapOutlined };
 
 // ==============================|| MENU ITEMS - MEDIA ||============================== //
 
@@ -25,6 +26,13 @@ const media: NavItemType = {
       type: 'item',
       url: '/catalog',
       icon: icons.AppstoreOutlined
+    },
+    {
+      id: 'compare',
+      title: <FormattedMessage id="compare" />,
+      type: 'item',
+      url: '/compare',
+      icon: icons.SwapOutlined
     }
   ]
 };

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Box, Container, Typography, Chip, Grid, Card, CardContent, Avatar, Stack, Rating, Button } from '@mui/material';
+import { Box, Container, Typography, Chip, Grid, Card, CardContent, Stack, Rating, Button } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import TvIcon from '@mui/icons-material/Tv';
