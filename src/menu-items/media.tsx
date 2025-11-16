@@ -2,6 +2,7 @@
 import { FormattedMessage } from 'react-intl';
 
 // assets
+import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import AppstoreOutlined from '@ant-design/icons/AppstoreOutlined';
 
@@ -9,7 +10,7 @@ import AppstoreOutlined from '@ant-design/icons/AppstoreOutlined';
 import { NavItemType } from 'types/menu';
 
 // icons
-const icons = { HomeOutlined, AppstoreOutlined };
+const icons = { PlayCircleOutlined, HomeOutlined, AppstoreOutlined };
 
 // ==============================|| MENU ITEMS - MEDIA ||============================== //
 
@@ -19,15 +20,8 @@ const media: NavItemType = {
   type: 'group',
   children: [
     {
-      id: 'home',
-      title: <FormattedMessage id="home" />,
-      type: 'item',
-      url: '/home',
-      icon: icons.HomeOutlined
-    },
-    {
-      id: 'catalog',
-      title: <FormattedMessage id="catalog" />,
+      id: 'browse-catalog',
+      title: <FormattedMessage id="browse-catalog" />,
       type: 'item',
       url: '/catalog',
       icon: icons.AppstoreOutlined

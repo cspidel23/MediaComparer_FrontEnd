@@ -5,6 +5,15 @@ export type Media = {
   id: string;
   type: 'movie' | 'tv';
   title: string;
+  original_title: string;
+  release_year: number;
+  release_date: string;
+  runtime_minutes: number;
+  rating: string; // Content rating (G, PG, PG-13, R, etc.)
+  box_office: string;
+  director_id: number;
+  director_name: string;
+  country_id: number;
   overview: string;
   year?: number;
   seasons?: number;
@@ -86,6 +95,16 @@ export const MOCK_MEDIA: Media[] = [
   }
 ];
 
-export function getById(id: string): Media | null {
-  return MOCK_MEDIA.find((m) => m.id === id) ?? null;
+export const MOCK_MEDIA: Media[] = [...MOCK_TV_SHOWS, ...MOCK_MOVIES];
+
+export function getById(id: string | number): Media | null {
+  return (
+    MOCK_MEDIA.find((m) => {
+      if (m.type === 'tv') {
+        return m.show_id === Number(id);
+      } else {
+        return m.movie_id === Number(id);
+      }
+    }) ?? null
+  );
 }

@@ -5,7 +5,6 @@ import { FormattedMessage } from 'react-intl';
 import QuestionOutlined from '@ant-design/icons/QuestionOutlined';
 import StopOutlined from '@ant-design/icons/StopOutlined';
 import PhoneOutlined from '@ant-design/icons/PhoneOutlined';
-import FullscreenOutlined from '@ant-design/icons/FullscreenOutlined';
 
 // type
 import { NavItemType } from 'types/menu';
@@ -14,8 +13,7 @@ import { NavItemType } from 'types/menu';
 const icons = {
   QuestionOutlined,
   StopOutlined,
-  PhoneOutlined,
-  FullscreenOutlined
+  PhoneOutlined
 };
 
 // ==============================|| MENU ITEMS - SUPPORT ||============================== //
@@ -32,13 +30,6 @@ const other: NavItemType = {
       url: '#',
       icon: icons.StopOutlined,
       disabled: true
-    },
-    {
-      id: 'full-page',
-      title: <FormattedMessage id="full-page" />,
-      type: 'item',
-      url: '/full-page',
-      icon: icons.FullscreenOutlined
     },
     {
       id: 'documentation',
