@@ -35,7 +35,7 @@ export function MediaListItem({ media }: { media: Media }) {
     } else {
       const year = media.release_date ? new Date(media.release_date).getFullYear() : null;
       if (year) parts.push(year.toString());
-      if (media.runtime) parts.push(`${media.runtime} mins`);
+      if (media.runtime_minutes) parts.push(`${media.runtime_minutes} mins`);
     }
 
     // Add rating

@@ -126,7 +126,7 @@ export default function MediaList() {
     if (media.type === 'tv') {
       return `${media.seasons} Season${media.seasons > 1 ? 's' : ''} • ${media.episodes} Episodes`;
     } else {
-      return `${media.runtime} mins`;
+      return `${media.runtime_minutes} mins`;
     }
   };
 
@@ -236,12 +236,19 @@ export default function MediaList() {
                   flexDirection: 'column',
                   cursor: 'pointer',
                   transition: 'transform 0.2s, box-shadow 0.2s',
+                  outline: 'none',
                   '&:hover': {
                     transform: 'translateY(-8px)',
                     boxShadow: 6
+                  },
+                  '&:focus-visible': {
+                    outline: '2px solid',
+                    outlineColor: 'primary.main',
+                    outlineOffset: '2px'
                   }
                 }}
                 onClick={() => handleMediaClick(media)}
+                tabIndex={0}
               >
                 {/* Poster Image */}
                 <CardMedia
