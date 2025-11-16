@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 
 // project import
 import Profile from './Profile';
-import FullScreen from './FullScreen';
 import MobileSection from './MobileSection';
 
 import { MenuOrientation } from 'config';
@@ -25,7 +24,6 @@ export default function HeaderContent() {
       {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && <DrawerHeader open={true} />}
       <Box sx={{ width: '100%', ml: 1 }} />
       <ModeSwitch />
-      {!downLG && <FullScreen />}
       {!downLG && <Profile />}
       {downLG && <MobileSection />}
     </>
