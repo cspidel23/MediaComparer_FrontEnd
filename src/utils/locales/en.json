@@ -1,4 +1,7 @@
 {
+  "browse-catalog": "Browse Catalog",
+  "catalog": "Catalog",
+  "compare": "Compare",
   "coming-soon": "Coming Soon",
   "contact-us": "Contact US",
   "documentation": "Documentation",
@@ -6,7 +9,10 @@
   "error-404": "Error 404",
   "error-500": "Error 500",
   "full-page": "Full Page Example",
+  "home": "Home",
   "maintenance": "Maintenance",
+  "media": "Media",
+  "media-library": "Media Library",
   "messages": "Messages",
   "others": "Others",
   "pages": "Pages",

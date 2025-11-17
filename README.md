@@ -1,4 +1,5 @@
 # MediaComparer_FrontEnd
+Vercel Front End: https://credential-api-giuj.onrender.com/api-docs/ <br>
 Movies API: https://movie-api-group2-20e70498bde4.herokuapp.com/api-docs <br>
 TVs API: https://g1-tvapi.onrender.com/api-docs/ <br>
 Credentials API: https://group3-authsquaredapi.onrender.com/api-docs/ <br>
@@ -25,3 +26,22 @@ Standard meeting with Brittney, Cai, and Buruk on Tuesday, doing the rest of com
 
 ### Published Front End version Alpha Comments
 was nice to have a little break from coding this week. - Brittney
+
+## Beta 1 Sprint Contributions
+
+Buruk: Added list logic for movies and cleaned up template to better fit our desired web app and made some same 
+movies/tv shows with the correct expected input <br> <br>
+Cai: Set up initial template repository, connected to Credentials API. 
+Set up the Vercel version of our application. Made final checks + readme additions<br> <br>
+Victor: Made a bug fix to the documentation of our Credentials API. <br> <br>
+Brittney: Created files for movies, tv, mock data, and a few others, and implemented the code inside them. 
+Attended meetings and communicated throughout the week. <br> <br>
+Abdullahi: Updated mock data to reflect the actual Movie and TV API formats, and confirmed the catalog and detail 
+pages render correctly.<br> <br>
+
+### Beta 1 Sprint Meetings
+Standard meeting with Brittney, Cai, and Buruk on Tuesday, doing the rest of communications afterwards on discord. We 
+also had an additional meeting of Brittmey and Cai on Thursday discussing the final TODO's of the sprint. 
+
+### Beta 1 Sprint Comments
+Some difficulty due to possible sparce output on the different media API's. 
