@@ -71,7 +71,8 @@ export default function NavItem({ item, level, isParents = false }: Props) {
     // eslint-disable-next-line
   }, [pathname]);
 
-  const textColor = mode === ThemeMode.DARK ? 'grey.400' : 'text.primary';
+  const textColor = mode === ThemeMode.DARK ? 'grey.600' : 'text.primary';
+  const iconColorMini = mode === ThemeMode.DARK ? 'grey.900' : 'primary.main';
   const iconSelectedColor = mode === ThemeMode.DARK && drawerOpen ? 'text.primary' : 'primary.main';
 
   return (
@@ -170,7 +171,7 @@ export default function NavItem({ item, level, isParents = false }: Props) {
                         color: iconSelectedColor
                       }
                     : {
-                        color: textColor
+                        color: drawerOpen ? textColor : iconColorMini
                       },
                   mode === ThemeMode.DARK
                     ? {
@@ -191,9 +192,9 @@ export default function NavItem({ item, level, isParents = false }: Props) {
                     justifyContent: 'center',
                     ...(mode === ThemeMode.DARK
                       ? {
-                          bgcolor: 'primary.900',
+                          bgcolor: 'grey.300',
                           '&:hover': {
-                            bgcolor: 'primary.darker'
+                            bgcolor: 'grey.400'
                           }
                         }
                       : {

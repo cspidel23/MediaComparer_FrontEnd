@@ -270,7 +270,8 @@ export default function NavCollapse({ menu, level, parentId, setSelectedItems, s
   const borderIcon = level === 1 ? <BorderOutlined style={{ fontSize: '1rem' }} /> : false;
   const Icon = menu.icon!;
   const menuIcon = menu.icon ? <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} /> : borderIcon;
-  const textColor = mode === ThemeMode.DARK ? 'grey.400' : 'text.primary';
+  const textColor = mode === ThemeMode.DARK ? 'grey.600' : 'text.primary';
+  const iconColorMini = mode === ThemeMode.DARK ? 'grey.900' : 'primary.main';
   const iconSelectedColor = mode === ThemeMode.DARK && drawerOpen ? 'text.primary' : 'primary.main';
   const popperId = miniMenuOpened ? `collapse-pop-${menu.id}` : undefined;
   const FlexBox = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' };
@@ -361,7 +362,7 @@ export default function NavCollapse({ menu, level, parentId, setSelectedItems, s
                         color: 'primary.main'
                       }
                     : {
-                        color: textColor
+                        color: drawerOpen ? textColor : iconColorMini
                       },
                   mode === ThemeMode.DARK
                     ? {
@@ -382,9 +383,9 @@ export default function NavCollapse({ menu, level, parentId, setSelectedItems, s
                     justifyContent: 'center',
                     ...(mode === ThemeMode.DARK
                       ? {
-                          bgcolor: 'primary.900',
+                          bgcolor: 'grey.300',
                           '&:hover': {
-                            bgcolor: 'primary.darker'
+                            bgcolor: 'grey.400'
                           }
                         }
                       : {

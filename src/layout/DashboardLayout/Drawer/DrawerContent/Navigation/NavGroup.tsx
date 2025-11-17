@@ -24,7 +24,7 @@ import NavCollapse from './NavCollapse';
 import SimpleBar from 'components/third-party/SimpleBar';
 import Transitions from 'components/@extended/Transitions';
 
-import { MenuOrientation } from 'config';
+import { MenuOrientation, ThemeMode } from 'config';
 import useConfig from 'hooks/useConfig';
 import { handlerHorizontalActiveItem, useGetMenuMaster } from 'api/menu';
 
@@ -93,6 +93,7 @@ export default function NavGroup({
   const selectedID = menuMaster.openedHorizontalItem;
 
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
+  const mode = theme.palette.mode;
 
   const [anchorEl, setAnchorEl] = useState<VirtualElement | (() => VirtualElement) | null | undefined>(null);
   const [currentItem, setCurrentItem] = useState(item);
@@ -266,11 +267,11 @@ export default function NavGroup({
               {item.title ? (
                 drawerOpen && (
                   <Box sx={{ pl: 3, mb: 1.5 }}>
-                    <Typography variant="subtitle2" color="text.secondary">
+                    <Typography variant="subtitle2" color={mode === ThemeMode.DARK ? 'grey.500' : 'text.secondary'}>
                       {item.title}
                     </Typography>
                     {item.caption && (
-                      <Typography variant="caption" color="secondary">
+                      <Typography variant="caption" color={mode === ThemeMode.DARK ? 'grey.600' : 'secondary'}>
                         {item.caption}
                       </Typography>
                     )}
