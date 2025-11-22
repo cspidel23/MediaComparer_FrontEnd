@@ -1,11 +1,22 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { useState, FormEvent } from 'react';
+import { useSession } from 'next-auth/react';
 
 // MUI
-import { Grid, Stack, TextField, Typography, Button, Alert, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import {
+  Stack,
+  TextField,
+  Typography,
+  Button,
+  Alert,
+  CircularProgress
+} from '@mui/material';
 
 export default function AccountPage() {
+  const { data: session } = useSession();
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,7 +25,7 @@ export default function AccountPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSuccessMsg('');
     setErrorMsg('');
@@ -24,49 +35,55 @@ export default function AccountPage() {
       return;
     }
 
+    // ✅ Get the real JWT from the NextAuth session
+    const accessToken = (session as any)?.token?.accessToken as string | undefined;
+
+    if (!accessToken) {
+      setErrorMsg('Auth token is not available. Please sign in again.');
+      return;
+    }
+
     try {
       setSubmitting(true);
 
-      // adjust if your token is stored differently
-      const token =
-        typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
+      // ✅ Use the correct endpoint AND correct field names
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/change-password`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/user/password/change`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
+            Authorization: `Bearer ${accessToken}`
           },
           body: JSON.stringify({
-            currentPassword,
-            newPassword
+            oldPassword: currentPassword,
+            newPassword: newPassword
           })
         }
       );
 
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
+      if (!res.ok || data?.success === false) {
         throw new Error(data?.message || 'Unable to update password.');
       }
 
-      setSuccessMsg('Password updated successfully.');
+      setSuccessMsg(data?.message || 'Password updated successfully.');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
-      setErrorMsg(err.message ?? 'Something went wrong.');
+      setErrorMsg(err?.message ?? 'Something went wrong.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Grid container justifyContent="center">
-      <Grid item xs={12} md={8} lg={6}>
-        <Stack spacing={3} sx={{ mt: 4 }}>
+    <Grid container justifyContent="center" sx={{ mt: 4 }}>
+      <Grid xs={12} md={8} lg={6}>
+        <Stack spacing={3}>
+          {/* Page Title */}
           <Stack spacing={0.5}>
             <Typography variant="h4">Account Settings</Typography>
             <Typography variant="body2" color="text.secondary">
@@ -74,12 +91,14 @@ export default function AccountPage() {
             </Typography>
           </Stack>
 
+          {/* Alerts */}
           {successMsg && <Alert severity="success">{successMsg}</Alert>}
           {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
+          {/* Form */}
           <Stack
             component="form"
-            spacing={2.5}
+            spacing={3}
             onSubmit={handleSubmit}
             sx={{ mt: 1 }}
           >
@@ -99,7 +118,7 @@ export default function AccountPage() {
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              helperText="Use at least 8 characters, including a mix of letters and numbers."
+              helperText="Use at least 8 characters with a mix of letters and numbers."
             />
 
             <TextField
@@ -111,12 +130,13 @@ export default function AccountPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
-            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={1}>
+            <Stack direction="row" justifyContent="flex-end">
               <Button
                 type="submit"
                 variant="contained"
                 disableElevation
                 disabled={submitting}
+                sx={{ minWidth: 160 }}
               >
                 {submitting ? (
                   <Stack direction="row" alignItems="center" spacing={1}>
@@ -134,4 +154,5 @@ export default function AccountPage() {
     </Grid>
   );
 }
+
 
