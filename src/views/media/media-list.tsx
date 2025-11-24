@@ -25,7 +25,10 @@ import {
   Button,
   IconButton,
   Fab,
-  Zoom
+  Zoom,
+  CircularProgress,
+  Alert,
+  Pagination
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import MovieIcon from '@mui/icons-material/Movie';
@@ -35,7 +38,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 // project import
-import { MOCK_MEDIA, Media } from 'app/mock/media';
+import { MOCK_MEDIA, Media, Genre } from 'app/mock/media';
+import { tvApi } from 'services/tvApi';
 
 export default function MediaList() {
   const router = useRouter();
@@ -44,21 +48,127 @@ export default function MediaList() {
   const [selectedGenres, setSelectedGenres] = React.useState<number[]>([]);
   const [sortBy, setSortBy] = React.useState<string>('popularity');
 
+  // API state
+  const [tvShows, setTvShows] = React.useState<Media[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [currentPage, setCurrentPage] = React.useState<number>(1);
+  const [totalPages, setTotalPages] = React.useState<number>(1);
+  const [totalTVShows, setTotalTVShows] = React.useState<number>(0);
+  const [apiGenres, setApiGenres] = React.useState<Genre[]>([]);
+
   // Compare mode states
   const [selectedForCompare, setSelectedForCompare] = React.useState<Media[]>([]);
   const [compareType, setCompareType] = React.useState<string | null>(null);
 
+  // Fetch genres from API on mount
+  React.useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await tvApi.getGenres();
+        const genres: Genre[] = response.data.data.map((g) => ({
+          genre_id: g.genre_id,
+          name: g.name
+        }));
+        setApiGenres(genres);
+      } catch (err) {
+        console.error('Error fetching genres:', err);
+      }
+    };
+
+    fetchGenres();
+  }, []);
+
+  // Fetch TV shows from API when currentPage or selectedGenres changes
+  React.useEffect(() => {
+    const fetchTVShows = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch shows for current page (API limit is 100 per page)
+        // Use filter endpoint if genres are selected
+        const genresParam = selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
+        const response = genresParam ? await tvApi.getFilteredShows(currentPage, 100, genresParam) : await tvApi.getShows(currentPage, 100);
+
+        // Convert API TV shows to Media type format
+        const convertedShows: Media[] = response.data.data.map((show) => ({
+          type: 'tv' as const,
+          show_id: show.show_id,
+          name: show.name,
+          original_name: show.original_name,
+          first_air_date: show.first_air_date,
+          last_air_date: show.first_air_date, // API doesn't return this in list view
+          seasons: show.seasons,
+          episodes: show.episodes,
+          status: show.status,
+          overview: '', // Not available in list endpoint
+          popularity: show.popularity,
+          tmdb_rating: show.tmdb_rating,
+          vote_count: 0, // Not available in list endpoint
+          creators: [], // Not available in list endpoint
+          poster_url: show.poster_url,
+          backdrop_url: '', // Not available in list endpoint
+          genres: [], // We'll fetch this separately or leave empty for list view
+          network: {
+            network_id: 0,
+            name: '',
+            logo: '',
+            country: ''
+          },
+          companies: [],
+          actors: []
+        }));
+
+        setTvShows(convertedShows);
+
+        // Calculate total pages
+        const total = response.data.count;
+        const pages = Math.ceil(total / response.data.limit);
+        setTotalPages(pages);
+        setTotalTVShows(total);
+      } catch (err: unknown) {
+        console.error('Error fetching TV shows:', err);
+        setError('Failed to load TV shows. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTVShows();
+  }, [currentPage, selectedGenres]);
+
+  // Get movies from mock data
+  const movies = React.useMemo(() => {
+    return MOCK_MEDIA.filter((media) => media.type === 'movie');
+  }, []);
+
+  // Combine TV shows from API with movies from mock data
+  const allMedia = React.useMemo(() => {
+    return [...tvShows, ...movies];
+  }, [tvShows, movies]);
+
   const handleTypeFilterChange = (_event: React.MouseEvent<HTMLElement>, newFilter: string) => {
     if (newFilter !== null) {
       setTypeFilter(newFilter);
+      // Reset to page 1 when changing type filter
+      setCurrentPage(1);
     }
   };
 
   const handleGenreToggle = (genreId: number) => {
     setSelectedGenres((prev) => (prev.includes(genreId) ? prev.filter((id) => id !== genreId) : [...prev, genreId]));
+    // Reset to page 1 when changing genre filter
+    setCurrentPage(1);
   };
 
-// Toggle a media card's compare selection
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+    // Scroll to top smoothly when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Toggle a media card's compare selection
   const toggleCompare = (media: Media) => {
     const isSelected = selectedForCompare.some((m) => {
       if (media.type === 'tv' && m.type === 'tv') {
@@ -96,7 +206,7 @@ export default function MediaList() {
     }
   };
 
-// Check if a media is selected for compare
+  // Check if a media is selected for compare
   const isSelectedForCompare = (media: Media): boolean => {
     return selectedForCompare.some((m) => {
       if (media.type === 'tv' && m.type === 'tv') {
@@ -109,7 +219,6 @@ export default function MediaList() {
     });
   };
 
-
   // Confirm comparison and navigate
   // TODO: need the correct route for a different page where we do the comparison
   const confirmCompare = () => {
@@ -117,21 +226,29 @@ export default function MediaList() {
     router.push('/compare');
   };
 
-  // Get all unique genres from media
+  // Get all unique genres from API and movies
   const allGenres = React.useMemo(() => {
     const genreMap = new Map();
-    MOCK_MEDIA.forEach((media) => {
+
+    // Add API genres (for TV shows)
+    apiGenres.forEach((genre) => {
+      genreMap.set(genre.genre_id, genre.name);
+    });
+
+    // Add movie genres from mock data
+    movies.forEach((media) => {
       media.genres.forEach((genre) => {
         if (!genreMap.has(genre.genre_id)) {
           genreMap.set(genre.genre_id, genre.name);
         }
       });
     });
+
     return Array.from(genreMap, ([genre_id, name]) => ({ genre_id, name })).sort((a, b) => a.name.localeCompare(b.name));
-  }, []);
+  }, [apiGenres, movies]);
 
   const filteredMedia = React.useMemo(() => {
-    let result = MOCK_MEDIA;
+    let result = allMedia;
 
     // Type filter
     if (typeFilter !== 'all') {
@@ -147,9 +264,16 @@ export default function MediaList() {
       });
     }
 
-    // Genre filter
-    if (selectedGenres.length > 0) {
-      result = result.filter((media) => media.genres.some((genre) => selectedGenres.includes(genre.genre_id)));
+    // Genre filter - only apply to movies since TV shows are filtered server-side
+    if (selectedGenres.length > 0 && typeFilter !== 'tv') {
+      result = result.filter((media) => {
+        // Only filter movies client-side
+        if (media.type === 'movie') {
+          return media.genres.some((genre) => selectedGenres.includes(genre.genre_id));
+        }
+        // TV shows are already filtered by the API
+        return true;
+      });
     }
 
     // Sort
@@ -173,7 +297,7 @@ export default function MediaList() {
     });
 
     return result;
-  }, [typeFilter, searchQuery, selectedGenres, sortBy]);
+  }, [allMedia, typeFilter, searchQuery, selectedGenres, sortBy]);
 
   const handleMediaClick = (media: Media) => {
     if (selectedForCompare.length > 0) return; // disable navigation during compare mode
@@ -183,9 +307,17 @@ export default function MediaList() {
 
   const getTitle = (media: Media) => (media.type === 'tv' ? media.name : media.title);
   const getYear = (media: Media) =>
-    media.type === 'tv' ? (media.first_air_date ? new Date(media.first_air_date).getFullYear() : null) : media.release_date ? new Date(media.release_date).getFullYear() : null;
+    media.type === 'tv'
+      ? media.first_air_date
+        ? new Date(media.first_air_date).getFullYear()
+        : null
+      : media.release_date
+        ? new Date(media.release_date).getFullYear()
+        : null;
   const getMetadata = (media: Media) =>
-    media.type === 'tv' ? `${media.seasons} Season${media.seasons > 1 ? 's' : ''} • ${media.episodes} Episodes` : `${media.runtime_minutes} mins`;
+    media.type === 'tv'
+      ? `${media.seasons} Season${media.seasons > 1 ? 's' : ''} • ${media.episodes} Episodes`
+      : `${media.runtime_minutes} mins`;
 
   return (
     <Container maxWidth="xl" sx={{ py: 4, position: 'relative' }}>
@@ -225,13 +357,13 @@ export default function MediaList() {
           sx={{ mb: 3 }}
         >
           <ToggleButton value="all" aria-label="all media">
-            All ({MOCK_MEDIA.length})
+            All ({totalTVShows + movies.length})
           </ToggleButton>
           <ToggleButton value="movie" aria-label="movies">
-            Movies ({MOCK_MEDIA.filter((m) => m.type === 'movie').length})
+            Movies ({movies.length})
           </ToggleButton>
           <ToggleButton value="tv" aria-label="tv shows">
-            TV Shows ({MOCK_MEDIA.filter((m) => m.type === 'tv').length})
+            TV Shows ({totalTVShows})
           </ToggleButton>
         </ToggleButtonGroup>
 
@@ -268,12 +400,24 @@ export default function MediaList() {
       {/* Results Count */}
       <Box sx={{ mb: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          Showing {filteredMedia.length} of {MOCK_MEDIA.length} titles
+          Showing {filteredMedia.length} of {allMedia.length} titles
         </Typography>
       </Box>
 
-      {/* Media Grid */}
-      {filteredMedia.length === 0 ? (
+      {/* Error Alert */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : /* Media Grid */
+      filteredMedia.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" color="text.secondary">
             No media found
@@ -312,9 +456,9 @@ export default function MediaList() {
                     '&:hover': disableInteraction
                       ? {}
                       : {
-                        transform: 'translateY(-8px)',
-                        boxShadow: 6
-                      },
+                          transform: 'translateY(-8px)',
+                          boxShadow: 6
+                        },
                     '&:focus-visible': {
                       outline: '2px solid',
                       outlineColor: 'primary.main',
@@ -331,7 +475,12 @@ export default function MediaList() {
                     height="400"
                     image={media.poster_url}
                     alt={getTitle(media)}
-                    sx={{ objectFit: 'cover', transition: 'filter 0.3s, opacity 0.3s', filter: greyOut ? 'grayscale(80%)' : 'none', opacity: greyOut ? 0.5 : 1 }}
+                    sx={{
+                      objectFit: 'cover',
+                      transition: 'filter 0.3s, opacity 0.3s',
+                      filter: greyOut ? 'grayscale(80%)' : 'none',
+                      opacity: greyOut ? 0.5 : 1
+                    }}
                   />
 
                   <CardContent sx={{ flexGrow: 1, p: 2 }}>
@@ -353,23 +502,20 @@ export default function MediaList() {
                     </Typography>
 
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                      <Rating
-                        value={media.tmdb_rating / 2}
-                        readOnly
-                        precision={0.1}
-                        size="small"
-                        icon={<StarIcon fontSize="inherit" />}
-                      />
+                      <Rating value={media.tmdb_rating / 2} readOnly precision={0.1} size="small" icon={<StarIcon fontSize="inherit" />} />
                       <Typography variant="body2" color="text.secondary">
                         {media.tmdb_rating.toFixed(1)}
                       </Typography>
                     </Stack>
 
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {media.genres.slice(0, 3).map((genre) => (
-                        <Chip key={genre.genre_id} label={genre.name} size="small" variant="outlined" />
-                      ))}
-                    </Box>
+                    {/* Only show genre badges for movies (TV show genres not available in list API) */}
+                    {media.type === 'movie' && media.genres.length > 0 && (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {media.genres.slice(0, 3).map((genre) => (
+                          <Chip key={genre.genre_id} label={genre.name} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    )}
                   </CardContent>
 
                   <CardActions
@@ -417,6 +563,34 @@ export default function MediaList() {
             );
           })}
         </Grid>
+      )}
+
+      {/* Pagination - Show for TV shows and All tab */}
+      {!loading && typeFilter !== 'movie' && totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            showFirstButton
+            showLastButton
+            siblingCount={1}
+            boundaryCount={1}
+          />
+        </Box>
+      )}
+
+      {/* Pagination info */}
+      {!loading && typeFilter !== 'movie' && (
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="body2" color="text.secondary">
+            {typeFilter === 'all'
+              ? `Showing page ${currentPage} of ${totalPages} (${totalTVShows} TV shows + ${movies.length} movies)`
+              : `Showing page ${currentPage} of ${totalPages} (${totalTVShows} total TV shows)`}
+          </Typography>
+        </Box>
       )}
 
       {/* Confirm Compare FAB */}

@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Box, Container, Typography, Chip, Grid, Card, CardContent, Stack, Rating, Button } from '@mui/material';
+import { Box, Container, Typography, Chip, Grid, Card, Stack, Rating, Button } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MovieIcon from '@mui/icons-material/Movie';
 import { getById } from '../../../mock/media';
+import ActorCard from 'components/media/ActorCard';
+import ProductionCompany from 'components/media/ProductionCompany';
 
 export default async function MoviePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -139,26 +141,7 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
                 <Grid container spacing={2}>
                   {media.actors.map((actor) => (
                     <Grid item xs={6} sm={4} md={3} key={actor.actor_id}>
-                      <Card variant="outlined">
-                        <Box
-                          component="img"
-                          src={actor.profile_url}
-                          alt={actor.name}
-                          sx={{
-                            width: '100%',
-                            aspectRatio: '2/3',
-                            objectFit: 'cover'
-                          }}
-                        />
-                        <CardContent sx={{ p: 1.5 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            {actor.name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {actor.character}
-                          </Typography>
-                        </CardContent>
-                      </Card>
+                      <ActorCard name={actor.name} character={actor.character} profileUrl={actor.profile_url} />
                     </Grid>
                   ))}
                 </Grid>
@@ -172,27 +155,18 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
                   Production Companies
                 </Typography>
                 <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
-                  {media.companies.map((company) => (
-                    <Box key={company.company_id} sx={{ textAlign: 'center' }}>
-                      <Box
-                        component="img"
-                        src={company.logo}
-                        alt={company.name}
-                        sx={{
-                          height: 50,
-                          maxWidth: 120,
-                          objectFit: 'contain',
-                          bgcolor: 'white',
-                          p: 1,
-                          borderRadius: 1,
-                          mb: 1
-                        }}
-                      />
-                      <Typography variant="caption" display="block">
-                        {company.name}
-                      </Typography>
-                    </Box>
-                  ))}
+                  {[...media.companies]
+                    .sort((a, b) => {
+                      // Companies with logos first, those without last
+                      const aHasLogo = a.logo && a.logo.trim() !== '';
+                      const bHasLogo = b.logo && b.logo.trim() !== '';
+                      if (aHasLogo && !bHasLogo) return -1;
+                      if (!aHasLogo && bHasLogo) return 1;
+                      return 0;
+                    })
+                    .map((company) => (
+                      <ProductionCompany key={company.company_id} name={company.name} logo={company.logo} />
+                    ))}
                 </Stack>
               </Card>
             )}
