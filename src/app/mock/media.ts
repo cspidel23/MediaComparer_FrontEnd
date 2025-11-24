@@ -422,7 +422,12 @@ const MOCK_TV_SHOWS: (TVShow & { type: 'tv' })[] = [
 ];
 
 // Mock Movies
-const MOCK_MOVIES: (Movie & { type: 'movie' })[] = [
+// Movies are now fetched from the Movie API
+const MOCK_MOVIES: (Movie & { type: 'movie' })[] = [];
+
+// Keeping old movie data commented out for reference
+/*
+const OLD_MOCK_MOVIES: (Movie & { type: 'movie' })[] = [
   {
     type: 'movie',
     movie_id: 603,
@@ -724,6 +729,7 @@ const MOCK_MOVIES: (Movie & { type: 'movie' })[] = [
     ]
   }
 ];
+*/
 
 export const MOCK_MEDIA: Media[] = [...MOCK_TV_SHOWS, ...MOCK_MOVIES];
 

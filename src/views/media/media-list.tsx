@@ -38,17 +38,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 // project import
-import { MOCK_MEDIA, Media, Genre } from 'app/mock/media';
+import { Media, Genre } from 'app/mock/media';
 import { tvApi } from 'services/tvApi';
+import { movieApi } from 'services/movieApi';
 
 export default function MediaList() {
   const router = useRouter();
   const [typeFilter, setTypeFilter] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [selectedGenres, setSelectedGenres] = React.useState<number[]>([]);
-  const [sortBy, setSortBy] = React.useState<string>('popularity');
+  const [sortBy, setSortBy] = React.useState<string>('alphabetical');
 
-  // API state
+  // API state for TV shows
   const [tvShows, setTvShows] = React.useState<Media[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -56,6 +57,11 @@ export default function MediaList() {
   const [totalPages, setTotalPages] = React.useState<number>(1);
   const [totalTVShows, setTotalTVShows] = React.useState<number>(0);
   const [apiGenres, setApiGenres] = React.useState<Genre[]>([]);
+
+  // API state for movies
+  const [movies, setMovies] = React.useState<Media[]>([]);
+  const [movieOffset, setMovieOffset] = React.useState<number>(0);
+  const [totalMovies, setTotalMovies] = React.useState<number>(0);
 
   // Compare mode states
   const [selectedForCompare, setSelectedForCompare] = React.useState<Media[]>([]);
@@ -138,12 +144,60 @@ export default function MediaList() {
     fetchTVShows();
   }, [currentPage, selectedGenres]);
 
-  // Get movies from mock data
-  const movies = React.useMemo(() => {
-    return MOCK_MEDIA.filter((media) => media.type === 'movie');
-  }, []);
+  // Fetch movies from API when movieOffset changes
+  React.useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  // Combine TV shows from API with movies from mock data
+        // Fetch movies for current offset (100 per page)
+        const response = await movieApi.getMovies(100, movieOffset);
+
+        // Convert API movies to Media type format
+        const convertedMovies: Media[] = response.data.data.data.map((movie) => ({
+          type: 'movie' as const,
+          movie_id: movie.movie_id,
+          title: movie.title,
+          original_title: movie.original_title,
+          release_year: movie.release_year,
+          release_date: `${movie.release_year}-01-01T00:00:00.000Z`, // Approximate date
+          runtime_minutes: movie.runtime_minutes,
+          rating: (movie.mpa_rating || movie.rating || 'Not Rated') as string,
+          box_office: movie.box_office,
+          director_id: movie.director_id,
+          director_name: movie.director_name,
+          country_id: movie.country_id,
+          overview: movie.overview,
+          popularity: 0, // Not available in list endpoint
+          tmdb_rating: 0, // Not available in list endpoint
+          vote_count: 0, // Not available in list endpoint
+          poster_url: movie.poster_url ? `https://image.tmdb.org/t/p/w500${movie.poster_url}` : '',
+          backdrop_url: movie.backdrop_url ? `https://image.tmdb.org/t/p/w500${movie.backdrop_url}` : '',
+          genres: movie.genres ? movie.genres.split(';').map((g, i) => ({ genre_id: i, name: g.trim() })) : [],
+          companies: [],
+          actors: []
+        }));
+
+        setMovies(convertedMovies);
+        setTotalMovies(response.data.data.pagination.totalCount);
+
+        // Calculate total pages for movies
+        const moviePages = Math.ceil(response.data.data.pagination.totalCount / 100);
+        // Update totalPages to be the max of TV and movie pages
+        setTotalPages((prevTotalPages) => Math.max(prevTotalPages, moviePages));
+      } catch (err: unknown) {
+        console.error('Error fetching movies:', err);
+        setError('Failed to load movies. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, [movieOffset]);
+
+  // Combine TV shows and movies from APIs
   const allMedia = React.useMemo(() => {
     return [...tvShows, ...movies];
   }, [tvShows, movies]);
@@ -151,8 +205,9 @@ export default function MediaList() {
   const handleTypeFilterChange = (_event: React.MouseEvent<HTMLElement>, newFilter: string) => {
     if (newFilter !== null) {
       setTypeFilter(newFilter);
-      // Reset to page 1 when changing type filter
+      // Reset to page 1 and offset 0 when changing type filter
       setCurrentPage(1);
+      setMovieOffset(0);
     }
   };
 
@@ -163,7 +218,14 @@ export default function MediaList() {
   };
 
   const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
+    // Handle pagination based on current filter
+    if (typeFilter === 'tv' || typeFilter === 'all') {
+      setCurrentPage(page);
+    }
+    if (typeFilter === 'movie' || typeFilter === 'all') {
+      // Convert page to offset (page 1 = offset 0, page 2 = offset 100, etc.)
+      setMovieOffset((page - 1) * 100);
+    }
     // Scroll to top smoothly when changing pages
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -226,26 +288,10 @@ export default function MediaList() {
     router.push('/compare');
   };
 
-  // Get all unique genres from API and movies
+  // Get all unique genres from TV API
   const allGenres = React.useMemo(() => {
-    const genreMap = new Map();
-
-    // Add API genres (for TV shows)
-    apiGenres.forEach((genre) => {
-      genreMap.set(genre.genre_id, genre.name);
-    });
-
-    // Add movie genres from mock data
-    movies.forEach((media) => {
-      media.genres.forEach((genre) => {
-        if (!genreMap.has(genre.genre_id)) {
-          genreMap.set(genre.genre_id, genre.name);
-        }
-      });
-    });
-
-    return Array.from(genreMap, ([genre_id, name]) => ({ genre_id, name })).sort((a, b) => a.name.localeCompare(b.name));
-  }, [apiGenres, movies]);
+    return apiGenres.sort((a, b) => a.name.localeCompare(b.name));
+  }, [apiGenres]);
 
   const filteredMedia = React.useMemo(() => {
     let result = allMedia;
@@ -264,33 +310,32 @@ export default function MediaList() {
       });
     }
 
-    // Genre filter - only apply to movies since TV shows are filtered server-side
-    if (selectedGenres.length > 0 && typeFilter !== 'tv') {
-      result = result.filter((media) => {
-        // Only filter movies client-side
-        if (media.type === 'movie') {
-          return media.genres.some((genre) => selectedGenres.includes(genre.genre_id));
-        }
-        // TV shows are already filtered by the API
-        return true;
-      });
+    // Genre filter - TV shows are filtered server-side via API
+    // Movies don't have genre data in list endpoint, so skip genre filtering for movies
+    if (selectedGenres.length > 0 && typeFilter === 'all') {
+      // When showing "all", only keep TV shows (already filtered) and skip movies
+      result = result.filter((media) => media.type === 'tv');
     }
 
     // Sort
     result = [...result].sort((a, b) => {
       switch (sortBy) {
-        case 'rating':
-          return b.tmdb_rating - a.tmdb_rating;
-        case 'popularity':
-          return b.popularity - a.popularity;
         case 'alphabetical':
           const titleA = a.type === 'tv' ? a.name : a.title;
           const titleB = b.type === 'tv' ? b.name : b.title;
           return titleA.localeCompare(titleB);
+        case 'alphabetical-reverse':
+          const titleA_rev = a.type === 'tv' ? a.name : a.title;
+          const titleB_rev = b.type === 'tv' ? b.name : b.title;
+          return titleB_rev.localeCompare(titleA_rev);
         case 'year':
           const yearA = a.type === 'tv' ? new Date(a.first_air_date).getFullYear() : new Date(a.release_date).getFullYear();
           const yearB = b.type === 'tv' ? new Date(b.first_air_date).getFullYear() : new Date(b.release_date).getFullYear();
           return yearB - yearA;
+        case 'year-reverse':
+          const yearA_rev = a.type === 'tv' ? new Date(a.first_air_date).getFullYear() : new Date(a.release_date).getFullYear();
+          const yearB_rev = b.type === 'tv' ? new Date(b.first_air_date).getFullYear() : new Date(b.release_date).getFullYear();
+          return yearA_rev - yearB_rev;
         default:
           return 0;
       }
@@ -357,10 +402,10 @@ export default function MediaList() {
           sx={{ mb: 3 }}
         >
           <ToggleButton value="all" aria-label="all media">
-            All ({totalTVShows + movies.length})
+            All ({totalTVShows + totalMovies})
           </ToggleButton>
           <ToggleButton value="movie" aria-label="movies">
-            Movies ({movies.length})
+            Movies ({totalMovies})
           </ToggleButton>
           <ToggleButton value="tv" aria-label="tv shows">
             TV Shows ({totalTVShows})
@@ -389,10 +434,10 @@ export default function MediaList() {
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel>Sort By</InputLabel>
           <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
-            <MenuItem value="popularity">Most Popular</MenuItem>
-            <MenuItem value="rating">Highest Rated</MenuItem>
             <MenuItem value="alphabetical">A-Z</MenuItem>
+            <MenuItem value="alphabetical-reverse">Z-A</MenuItem>
             <MenuItem value="year">Newest First</MenuItem>
+            <MenuItem value="year-reverse">Oldest First</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -501,19 +546,29 @@ export default function MediaList() {
                       {getYear(media)} • {getMetadata(media)}
                     </Typography>
 
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                      <Rating value={media.tmdb_rating / 2} readOnly precision={0.1} size="small" icon={<StarIcon fontSize="inherit" />} />
-                      <Typography variant="body2" color="text.secondary">
-                        {media.tmdb_rating.toFixed(1)}
-                      </Typography>
-                    </Stack>
+                    {/* Show rating stars for TV shows only */}
+                    {media.type === 'tv' && (
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                        <Rating value={media.tmdb_rating / 2} readOnly precision={0.1} size="small" icon={<StarIcon fontSize="inherit" />} />
+                        <Typography variant="body2" color="text.secondary">
+                          {media.tmdb_rating.toFixed(1)}
+                        </Typography>
+                      </Stack>
+                    )}
 
-                    {/* Only show genre badges for movies (TV show genres not available in list API) */}
-                    {media.type === 'movie' && media.genres.length > 0 && (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {media.genres.slice(0, 3).map((genre) => (
-                          <Chip key={genre.genre_id} label={genre.name} size="small" variant="outlined" />
-                        ))}
+                    {/* Show MPA rating and genres for movies */}
+                    {media.type === 'movie' && (
+                      <Box sx={{ mb: 1 }}>
+                        {media.rating && (
+                          <Chip label={media.rating} size="small" color="primary" variant="outlined" sx={{ mb: 1 }} />
+                        )}
+                        {media.genres.length > 0 && (
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                            {media.genres.slice(0, 3).map((genre) => (
+                              <Chip key={genre.genre_id} label={genre.name} size="small" variant="outlined" />
+                            ))}
+                          </Box>
+                        )}
                       </Box>
                     )}
                   </CardContent>
@@ -565,8 +620,8 @@ export default function MediaList() {
         </Grid>
       )}
 
-      {/* Pagination - Show for TV shows and All tab */}
-      {!loading && typeFilter !== 'movie' && totalPages > 1 && (
+      {/* Pagination - Show for all tabs */}
+      {!loading && totalPages > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2 }}>
           <Pagination
             count={totalPages}
@@ -583,12 +638,14 @@ export default function MediaList() {
       )}
 
       {/* Pagination info */}
-      {!loading && typeFilter !== 'movie' && (
+      {!loading && totalPages > 1 && (
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="body2" color="text.secondary">
             {typeFilter === 'all'
-              ? `Showing page ${currentPage} of ${totalPages} (${totalTVShows} TV shows + ${movies.length} movies)`
-              : `Showing page ${currentPage} of ${totalPages} (${totalTVShows} total TV shows)`}
+              ? `Showing page ${currentPage} of ${totalPages} (${totalTVShows} TV shows + ${totalMovies} movies)`
+              : typeFilter === 'tv'
+                ? `Showing page ${currentPage} of ${totalPages} (${totalTVShows} total TV shows)`
+                : `Showing page ${currentPage} of ${totalPages} (${totalMovies} total movies)`}
           </Typography>
         </Box>
       )}

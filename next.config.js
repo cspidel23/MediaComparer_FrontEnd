@@ -34,7 +34,9 @@ const nextConfig = {
     NEXT_APP_JWT_TIMEOUT: process.env.REACT_APP_JWT_TIMEOUT,
     NEXT_APP_GOOGLE_MAPS_API_KEY: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     TV_API_URL: process.env.TV_API_URL,
-    TV_API_KEY: process.env.TV_API_KEY
+    TV_API_KEY: process.env.TV_API_KEY,
+    MOVIE_API_URL: process.env.MOVIE_API_URL,
+    MOVIE_API_KEY: process.env.MOVIE_API_KEY
   }
 };
 
