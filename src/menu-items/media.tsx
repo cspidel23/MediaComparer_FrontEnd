@@ -6,12 +6,13 @@ import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import AppstoreOutlined from '@ant-design/icons/AppstoreOutlined';
 import SwapOutlined from '@ant-design/icons/SwapOutlined';
+import PlusCircleOutlined from '@ant-design/icons/PlusCircleOutlined';
 
 // type
 import { NavItemType } from 'types/menu';
 
 // icons
-const icons = { PlayCircleOutlined, HomeOutlined, AppstoreOutlined, SwapOutlined };
+const icons = { PlayCircleOutlined, HomeOutlined, AppstoreOutlined, SwapOutlined, PlusCircleOutlined };
 
 // ==============================|| MENU ITEMS - MEDIA ||============================== //
 
@@ -26,6 +27,13 @@ const media: NavItemType = {
       type: 'item',
       url: '/catalog',
       icon: icons.AppstoreOutlined
+    },
+    {
+      id: 'add-media',
+      title: <FormattedMessage id="add-media" />,
+      type: 'item',
+      url: '/add-media',
+      icon: icons.PlusCircleOutlined
     },
     {
       id: 'compare',
