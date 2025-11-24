@@ -21,7 +21,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 
 // project imports
-import { movieApi } from 'services/movieApi';
+// import { movieApi } from 'services/movieApi';
 
 interface MovieFormData {
   title: string;
@@ -420,13 +420,7 @@ export default function AddMovieForm() {
 
         {/* Action Buttons */}
         <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<CancelIcon />}
-            onClick={handleCancel}
-            disabled={loading}
-            size="large"
-          >
+          <Button variant="outlined" startIcon={<CancelIcon />} onClick={handleCancel} disabled={loading} size="large">
             Cancel
           </Button>
           <Button

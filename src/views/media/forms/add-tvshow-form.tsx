@@ -50,14 +50,7 @@ interface TVShowFormData {
   actors: string;
 }
 
-const SHOW_STATUSES = [
-  'Returning Series',
-  'Ended',
-  'Canceled',
-  'In Production',
-  'Planned',
-  'Pilot'
-];
+const SHOW_STATUSES = ['Returning Series', 'Ended', 'Canceled', 'In Production', 'Planned', 'Pilot'];
 
 export default function AddTVShowForm() {
   const router = useRouter();
@@ -284,12 +277,7 @@ export default function AddTVShowForm() {
             <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
-                <Select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleSelectChange}
-                  label="Status"
-                >
+                <Select name="status" value={formData.status} onChange={handleSelectChange} label="Status">
                   {SHOW_STATUSES.map((status) => (
                     <MenuItem key={status} value={status}>
                       {status}
@@ -556,13 +544,7 @@ export default function AddTVShowForm() {
 
         {/* Action Buttons */}
         <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<CancelIcon />}
-            onClick={handleCancel}
-            disabled={loading}
-            size="large"
-          >
+          <Button variant="outlined" startIcon={<CancelIcon />} onClick={handleCancel} disabled={loading} size="large">
             Cancel
           </Button>
           <Button

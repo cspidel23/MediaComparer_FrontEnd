@@ -19,13 +19,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`media-tabpanel-${index}`}
-      aria-labelledby={`media-tab-${index}`}
-      {...other}
-    >
+    <div role="tabpanel" hidden={value !== index} id={`media-tabpanel-${index}`} aria-labelledby={`media-tab-${index}`} {...other}>
       {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
     </div>
   );

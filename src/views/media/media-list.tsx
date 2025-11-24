@@ -17,10 +17,6 @@ import {
   Stack,
   TextField,
   InputAdornment,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   CardActions,
   Button,
   IconButton,
@@ -47,7 +43,6 @@ export default function MediaList() {
   const [typeFilter, setTypeFilter] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [selectedGenres, setSelectedGenres] = React.useState<number[]>([]);
-  const [sortBy, setSortBy] = React.useState<string>('alphabetical');
 
   // API state for TV shows
   const [tvShows, setTvShows] = React.useState<Media[]>([]);
@@ -317,32 +312,8 @@ export default function MediaList() {
       result = result.filter((media) => media.type === 'tv');
     }
 
-    // Sort
-    result = [...result].sort((a, b) => {
-      switch (sortBy) {
-        case 'alphabetical':
-          const titleA = a.type === 'tv' ? a.name : a.title;
-          const titleB = b.type === 'tv' ? b.name : b.title;
-          return titleA.localeCompare(titleB);
-        case 'alphabetical-reverse':
-          const titleA_rev = a.type === 'tv' ? a.name : a.title;
-          const titleB_rev = b.type === 'tv' ? b.name : b.title;
-          return titleB_rev.localeCompare(titleA_rev);
-        case 'year':
-          const yearA = a.type === 'tv' ? new Date(a.first_air_date).getFullYear() : new Date(a.release_date).getFullYear();
-          const yearB = b.type === 'tv' ? new Date(b.first_air_date).getFullYear() : new Date(b.release_date).getFullYear();
-          return yearB - yearA;
-        case 'year-reverse':
-          const yearA_rev = a.type === 'tv' ? new Date(a.first_air_date).getFullYear() : new Date(a.release_date).getFullYear();
-          const yearB_rev = b.type === 'tv' ? new Date(b.first_air_date).getFullYear() : new Date(b.release_date).getFullYear();
-          return yearA_rev - yearB_rev;
-        default:
-          return 0;
-      }
-    });
-
     return result;
-  }, [allMedia, typeFilter, searchQuery, selectedGenres, sortBy]);
+  }, [allMedia, typeFilter, searchQuery, selectedGenres]);
 
   const handleMediaClick = (media: Media) => {
     if (selectedForCompare.length > 0) return; // disable navigation during compare mode
@@ -429,17 +400,6 @@ export default function MediaList() {
             ))}
           </Stack>
         </Box>
-
-        {/* Sort Dropdown */}
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
-            <MenuItem value="alphabetical">A-Z</MenuItem>
-            <MenuItem value="alphabetical-reverse">Z-A</MenuItem>
-            <MenuItem value="year">Newest First</MenuItem>
-            <MenuItem value="year-reverse">Oldest First</MenuItem>
-          </Select>
-        </FormControl>
       </Box>
 
       {/* Results Count */}
