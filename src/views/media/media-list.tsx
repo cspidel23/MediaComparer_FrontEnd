@@ -409,6 +409,23 @@ export default function MediaList() {
         </Typography>
       </Box>
 
+      {/* Pagination - Top */}
+      {!loading && totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            showFirstButton
+            showLastButton
+            siblingCount={1}
+            boundaryCount={1}
+          />
+        </Box>
+      )}
+
       {/* Error Alert */}
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
