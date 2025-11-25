@@ -75,8 +75,17 @@ export interface MovieDetailResponse {
 
 export const movieApi = {
   // Get all movies (paginated with offset/limit)
-  getMovies: (limit: number = 100, offset: number = 0) =>
-    movieService.get<MoviesResponse>(`/api/v1/movies?limit=${limit}&offset=${offset}`),
+  getMovies: (limit: number = 100, offset: number = 0, genre?: string, yearMin?: number, yearMax?: number) => {
+    const genreParam = genre ? `&genre=${encodeURIComponent(genre)}` : '';
+    const yearMinParam = yearMin ? `&yearMin=${yearMin}` : '';
+    const yearMaxParam = yearMax ? `&yearMax=${yearMax}` : '';
+    return movieService.get<MoviesResponse>(`/api/v1/movies?limit=${limit}&offset=${offset}${genreParam}${yearMinParam}${yearMaxParam}`);
+  },
+
+  // Search movies by title
+  searchMovies: (searchTerm: string, limit: number = 100, offset: number = 0) => {
+    return movieService.get<MoviesResponse>(`/api/v1/movies/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}&offset=${offset}`);
+  },
 
   // Get movie by ID
   getMovieById: (movieId: number) => movieService.get<MovieDetailResponse>(`/api/v1/movies/search/id?movieId=${movieId}`)

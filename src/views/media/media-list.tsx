@@ -24,7 +24,8 @@ import {
   Zoom,
   CircularProgress,
   Alert,
-  Pagination
+  Pagination,
+  Autocomplete
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import MovieIcon from '@mui/icons-material/Movie';
@@ -43,6 +44,15 @@ export default function MediaList() {
   const [typeFilter, setTypeFilter] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [selectedGenres, setSelectedGenres] = React.useState<number[]>([]);
+  const [selectedYear, setSelectedYear] = React.useState<string>('');
+
+  // TV-specific filters
+  const [tvMinRating, setTvMinRating] = React.useState<number | ''>('');
+  const [tvNetwork, setTvNetwork] = React.useState<string>('');
+  const [tvStatus, setTvStatus] = React.useState<string>('');
+
+  // Movie-specific filters
+  const [movieRating, setMovieRating] = React.useState<string>('');
 
   // API state for TV shows
   const [tvShows, setTvShows] = React.useState<Media[]>([]);
@@ -80,7 +90,7 @@ export default function MediaList() {
     fetchGenres();
   }, []);
 
-  // Fetch TV shows from API when currentPage or selectedGenres changes
+  // Fetch TV shows from API when currentPage, selectedGenres, selectedYear, or searchQuery changes
   React.useEffect(() => {
     const fetchTVShows = async () => {
       try {
@@ -88,9 +98,18 @@ export default function MediaList() {
         setError(null);
 
         // Fetch shows for current page (API limit is 100 per page)
-        // Use filter endpoint if genres are selected
-        const genresParam = selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
-        const response = genresParam ? await tvApi.getFilteredShows(currentPage, 100, genresParam) : await tvApi.getShows(currentPage, 100);
+        // Use filter endpoint if search query, genres, year, or other filters are selected
+        const nameParam = searchQuery.trim() || undefined;
+        const genresParam = selectedGenres.length > 0 ? selectedGenres.map((id) => apiGenres.find((g) => g.genre_id === id)?.name).filter(Boolean).join(',') : undefined;
+        const startDate = selectedYear ? `${selectedYear}-01-01` : undefined;
+        const endDate = selectedYear ? `${selectedYear}-12-31` : undefined;
+        const minRating = tvMinRating !== '' ? tvMinRating : undefined;
+        const network = tvNetwork.trim() || undefined;
+        const status = tvStatus.trim() || undefined;
+
+        const response = nameParam || genresParam || startDate || minRating !== undefined || network || status
+          ? await tvApi.getFilteredShows(currentPage, 100, nameParam, genresParam, startDate, endDate, minRating, undefined, network, status)
+          : await tvApi.getShows(currentPage, 100);
 
         // Convert API TV shows to Media type format
         const convertedShows: Media[] = response.data.data.map((show) => ({
@@ -137,17 +156,28 @@ export default function MediaList() {
     };
 
     fetchTVShows();
-  }, [currentPage, selectedGenres]);
+  }, [currentPage, selectedGenres, selectedYear, apiGenres, searchQuery, tvMinRating, tvNetwork, tvStatus]);
 
-  // Fetch movies from API when movieOffset changes
+  // Fetch movies from API when movieOffset, selectedGenres, selectedYear, or searchQuery changes
   React.useEffect(() => {
     const fetchMovies = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch movies for current offset (100 per page)
-        const response = await movieApi.getMovies(100, movieOffset);
+        // Use search endpoint if search query is provided
+        let response;
+        if (searchQuery.trim()) {
+          response = await movieApi.searchMovies(searchQuery.trim(), 100, movieOffset);
+        } else {
+          // Fetch movies for current offset (100 per page)
+          // Movie API supports single genre filter, so use first selected genre
+          const genreParam = selectedGenres.length > 0 && apiGenres.length > 0
+            ? apiGenres.find((g) => g.genre_id === selectedGenres[0])?.name
+            : undefined;
+          const yearNum = selectedYear ? parseInt(selectedYear) : undefined;
+          response = await movieApi.getMovies(100, movieOffset, genreParam, yearNum, yearNum);
+        }
 
         // Convert API movies to Media type format
         const convertedMovies: Media[] = response.data.data.data.map((movie) => ({
@@ -190,7 +220,7 @@ export default function MediaList() {
     };
 
     fetchMovies();
-  }, [movieOffset]);
+  }, [movieOffset, selectedGenres, selectedYear, apiGenres, searchQuery, movieRating]);
 
   // Combine TV shows and movies from APIs
   const allMedia = React.useMemo(() => {
@@ -288,6 +318,30 @@ export default function MediaList() {
     return apiGenres.sort((a, b) => a.name.localeCompare(b.name));
   }, [apiGenres]);
 
+  // Generate year options from current year down to 1900
+  const yearOptions = React.useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: currentYear - 1899 }, (_, i) => currentYear - i);
+  }, []);
+
+  // MPA rating options for movies
+  const mpaRatingOptions = ['G', 'PG', 'PG-13', 'R', 'NC-17', 'Not Rated'];
+
+  // Rating options for TV shows (0 to 10 in 0.5 increments) - for minimum rating
+  const tvRatingOptions = React.useMemo(() => {
+    const ratings: number[] = [];
+    for (let i = 0; i <= 10; i += 0.5) {
+      ratings.push(Number(i.toFixed(1)));
+    }
+    return ratings;
+  }, []);
+
+  // Common TV show networks
+  const tvNetworkOptions = ['ABC', 'CBS', 'NBC', 'FOX', 'The CW', 'HBO', 'Netflix', 'Amazon', 'Hulu', 'Disney+', 'Apple TV+', 'Showtime', 'AMC', 'FX', 'USA Network', 'TNT', 'Syfy'];
+
+  // TV show status options
+  const tvStatusOptions = ['Returning Series', 'Ended', 'Canceled', 'In Production', 'Planned'];
+
   const filteredMedia = React.useMemo(() => {
     let result = allMedia;
 
@@ -296,24 +350,21 @@ export default function MediaList() {
       result = result.filter((media) => media.type === typeFilter);
     }
 
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    // Search filtering is now handled server-side for both TV shows and movies
+    // Genre and year filtering is also handled server-side for both TV shows and movies
+
+    // Client-side movie rating filter (temporary until backend supports it)
+    if (movieRating && typeFilter !== 'tv') {
       result = result.filter((media) => {
-        const title = media.type === 'tv' ? media.name : media.title;
-        return title.toLowerCase().includes(query);
+        if (media.type === 'movie') {
+          return media.rating?.toLowerCase() === movieRating.toLowerCase();
+        }
+        return true;
       });
     }
 
-    // Genre filter - TV shows are filtered server-side via API
-    // Movies don't have genre data in list endpoint, so skip genre filtering for movies
-    if (selectedGenres.length > 0 && typeFilter === 'all') {
-      // When showing "all", only keep TV shows (already filtered) and skip movies
-      result = result.filter((media) => media.type === 'tv');
-    }
-
     return result;
-  }, [allMedia, typeFilter, searchQuery, selectedGenres]);
+  }, [allMedia, typeFilter, movieRating]);
 
   const handleMediaClick = (media: Media) => {
     if (selectedForCompare.length > 0) return; // disable navigation during compare mode
@@ -338,54 +389,127 @@ export default function MediaList() {
   return (
     <Container maxWidth="xl" sx={{ py: 4, position: 'relative' }}>
       {/* Header */}
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+      <Box
+        sx={{
+          mb: 5,
+          textAlign: 'center',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)',
+          borderRadius: 3,
+          py: 4,
+          px: 2
+        }}
+      >
+        <Typography
+          variant="h3"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 800,
+            mb: 1,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
           Media Catalog
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontSize: '1.1rem' }}>
           Browse our collection of movies and TV shows
         </Typography>
 
         {/* Search Bar */}
-        <Box sx={{ mb: 3, maxWidth: 600, mx: 'auto' }}>
+        <Box sx={{ mb: 4, maxWidth: 650, mx: 'auto' }}>
           <TextField
             fullWidth
             placeholder="Search by title..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              // Reset pagination when searching
+              setCurrentPage(1);
+              setMovieOffset(0);
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon />
+                  <SearchIcon sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               )
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'background.paper',
+                borderRadius: 3,
+                transition: 'all 0.3s',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  boxShadow: 2
+                },
+                '&.Mui-focused': {
+                  backgroundColor: 'background.paper',
+                  boxShadow: 4,
+                  '& fieldset': {
+                    borderWidth: 2
+                  }
+                }
+              }
             }}
           />
         </Box>
 
         {/* Type Filter Buttons */}
-        <ToggleButtonGroup
-          value={typeFilter}
-          exclusive
-          onChange={handleTypeFilterChange}
-          aria-label="media type filter"
-          color="primary"
-          sx={{ mb: 3 }}
-        >
-          <ToggleButton value="all" aria-label="all media">
-            All ({totalTVShows + totalMovies})
-          </ToggleButton>
-          <ToggleButton value="movie" aria-label="movies">
-            Movies ({totalMovies})
-          </ToggleButton>
-          <ToggleButton value="tv" aria-label="tv shows">
-            TV Shows ({totalTVShows})
-          </ToggleButton>
-        </ToggleButtonGroup>
+        <Box sx={{ mb: 4 }}>
+          <ToggleButtonGroup
+            value={typeFilter}
+            exclusive
+            onChange={handleTypeFilterChange}
+            aria-label="media type filter"
+            color="primary"
+            sx={{
+              gap: 1,
+              '& .MuiToggleButton-root': {
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                transition: 'all 0.2s',
+                border: '2px solid',
+                borderColor: 'divider',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  transform: 'translateY(-2px)',
+                  boxShadow: 2
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'primary.main',
+                  color: 'primary.contrastText',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                    borderColor: 'primary.dark'
+                  }
+                }
+              }
+            }}
+          >
+            <ToggleButton value="all" aria-label="all media">
+              All ({totalTVShows + totalMovies})
+            </ToggleButton>
+            <ToggleButton value="movie" aria-label="movies">
+              Movies ({totalMovies})
+            </ToggleButton>
+            <ToggleButton value="tv" aria-label="tv shows">
+              TV Shows ({totalTVShows})
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
 
         {/* Genre Filters */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2, fontWeight: 600 }}>
             Filter by Genre
           </Typography>
           <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap justifyContent="center">
@@ -396,10 +520,403 @@ export default function MediaList() {
                 onClick={() => handleGenreToggle(genre.genre_id)}
                 color={selectedGenres.includes(genre.genre_id) ? 'primary' : 'default'}
                 variant={selectedGenres.includes(genre.genre_id) ? 'filled' : 'outlined'}
+                sx={{
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: 2
+                  }
+                }}
               />
             ))}
           </Stack>
         </Box>
+
+        {/* Year Filter */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <Typography variant="subtitle1" color="text.secondary" sx={{ fontWeight: 600 }}>
+            Release Year
+          </Typography>
+          <Autocomplete
+            size="small"
+            options={yearOptions}
+            value={selectedYear ? parseInt(selectedYear) : null}
+            onChange={(_event, newValue) => {
+              setSelectedYear(newValue ? newValue.toString() : '');
+              setCurrentPage(1);
+              setMovieOffset(0);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="All Years"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: 'background.paper',
+                    borderRadius: 2,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      boxShadow: 2
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: 'background.paper',
+                      boxShadow: 3
+                    }
+                  }
+                }}
+              />
+            )}
+            getOptionLabel={(option) => option.toString()}
+            isOptionEqualToValue={(option, value) => option === value}
+            sx={{
+              width: 280,
+              '& .MuiAutocomplete-popupIndicator': {
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              },
+              '& .MuiAutocomplete-clearIndicator': {
+                transition: 'all 0.2s',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }
+            }}
+            clearOnEscape
+            disableClearable={false}
+            componentsProps={{
+              paper: {
+                sx: {
+                  boxShadow: 6,
+                  mt: 1,
+                  borderRadius: 2,
+                  '& .MuiAutocomplete-listbox': {
+                    maxHeight: '300px',
+                    '& .MuiAutocomplete-option': {
+                      py: 1.5,
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        backgroundColor: 'action.hover'
+                      },
+                      '&[aria-selected="true"]': {
+                        backgroundColor: 'action.selected',
+                        fontWeight: 600
+                      }
+                    }
+                  }
+                }
+              }
+            }}
+          />
+        </Box>
+
+        {/* TV-Specific Filters */}
+        {typeFilter === 'tv' && (
+          <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2, fontWeight: 600, textAlign: 'center' }}>
+              TV Show Filters
+            </Typography>
+            <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap justifyContent="center" alignItems="center">
+              {/* Minimum Rating */}
+              <Autocomplete
+                size="small"
+                options={tvRatingOptions}
+                value={tvMinRating !== '' ? tvMinRating : null}
+                onChange={(_event, newValue) => {
+                  setTvMinRating(newValue !== null ? newValue : '');
+                  setCurrentPage(1);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Minimum Rating"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'background.paper',
+                        borderRadius: 2,
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                          boxShadow: 2
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: 'background.paper',
+                          boxShadow: 3
+                        }
+                      }
+                    }}
+                  />
+                )}
+                getOptionLabel={(option) => `${option.toString()}+`}
+                isOptionEqualToValue={(option, value) => option === value}
+                sx={{ width: 180 }}
+                clearOnEscape
+                disableClearable={false}
+                componentsProps={{
+                  paper: {
+                    sx: {
+                      boxShadow: 6,
+                      mt: 1,
+                      borderRadius: 2,
+                      '& .MuiAutocomplete-listbox': {
+                        maxHeight: '300px',
+                        '& .MuiAutocomplete-option': {
+                          py: 1.5,
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            backgroundColor: 'action.hover'
+                          },
+                          '&[aria-selected="true"]': {
+                            backgroundColor: 'action.selected',
+                            fontWeight: 600
+                          }
+                        }
+                      }
+                    }
+                  }
+                }}
+              />
+              {/* Network */}
+              <Autocomplete
+                size="small"
+                options={tvNetworkOptions}
+                value={tvNetwork || null}
+                onChange={(_event, newValue) => {
+                  setTvNetwork(newValue || '');
+                  setCurrentPage(1);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Network"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'background.paper',
+                        borderRadius: 2,
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                          boxShadow: 2
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: 'background.paper',
+                          boxShadow: 3
+                        }
+                      }
+                    }}
+                  />
+                )}
+                getOptionLabel={(option) => option}
+                isOptionEqualToValue={(option, value) => option === value}
+                sx={{ width: 200 }}
+                clearOnEscape
+                disableClearable={false}
+                componentsProps={{
+                  paper: {
+                    sx: {
+                      boxShadow: 6,
+                      mt: 1,
+                      borderRadius: 2,
+                      '& .MuiAutocomplete-listbox': {
+                        maxHeight: '300px',
+                        '& .MuiAutocomplete-option': {
+                          py: 1.5,
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            backgroundColor: 'action.hover'
+                          },
+                          '&[aria-selected="true"]': {
+                            backgroundColor: 'action.selected',
+                            fontWeight: 600
+                          }
+                        }
+                      }
+                    }
+                  }
+                }}
+              />
+              {/* Status */}
+              <Autocomplete
+                size="small"
+                options={tvStatusOptions}
+                value={tvStatus || null}
+                onChange={(_event, newValue) => {
+                  setTvStatus(newValue || '');
+                  setCurrentPage(1);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="Status"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'background.paper',
+                        borderRadius: 2,
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                          boxShadow: 2
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: 'background.paper',
+                          boxShadow: 3
+                        }
+                      }
+                    }}
+                  />
+                )}
+                getOptionLabel={(option) => option}
+                isOptionEqualToValue={(option, value) => option === value}
+                sx={{ width: 200 }}
+                clearOnEscape
+                disableClearable={false}
+                componentsProps={{
+                  paper: {
+                    sx: {
+                      boxShadow: 6,
+                      mt: 1,
+                      borderRadius: 2,
+                      '& .MuiAutocomplete-listbox': {
+                        maxHeight: '300px',
+                        '& .MuiAutocomplete-option': {
+                          py: 1.5,
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            backgroundColor: 'action.hover'
+                          },
+                          '&[aria-selected="true"]': {
+                            backgroundColor: 'action.selected',
+                            fontWeight: 600
+                          }
+                        }
+                      }
+                    }
+                  }
+                }}
+              />
+              {/* Clear TV Filters */}
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => {
+                  setTvMinRating('');
+                  setTvNetwork('');
+                  setTvStatus('');
+                  setCurrentPage(1);
+                }}
+                sx={{
+                  color: 'primary.main',
+                  textTransform: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Clear TV Filters
+              </Button>
+            </Stack>
+          </Box>
+        )}
+
+        {/* Movie-Specific Filters */}
+        {typeFilter === 'movie' && (
+          <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2, fontWeight: 600, textAlign: 'center' }}>
+              Movie Filters
+            </Typography>
+            <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap justifyContent="center" alignItems="center">
+              {/* MPA Rating */}
+              <Autocomplete
+                size="small"
+                options={mpaRatingOptions}
+                value={movieRating || null}
+                onChange={(_event, newValue) => {
+                  setMovieRating(newValue || '');
+                  setMovieOffset(0);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="All Ratings"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'background.paper',
+                        borderRadius: 2,
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                          boxShadow: 2
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: 'background.paper',
+                          boxShadow: 3
+                        }
+                      }
+                    }}
+                  />
+                )}
+                getOptionLabel={(option) => option}
+                isOptionEqualToValue={(option, value) => option === value}
+                sx={{ width: 280 }}
+                clearOnEscape
+                disableClearable={false}
+                componentsProps={{
+                  paper: {
+                    sx: {
+                      boxShadow: 6,
+                      mt: 1,
+                      borderRadius: 2,
+                      '& .MuiAutocomplete-listbox': {
+                        maxHeight: '300px',
+                        '& .MuiAutocomplete-option': {
+                          py: 1.5,
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            backgroundColor: 'action.hover'
+                          },
+                          '&[aria-selected="true"]': {
+                            backgroundColor: 'action.selected',
+                            fontWeight: 600
+                          }
+                        }
+                      }
+                    }
+                  }
+                }}
+              />
+              {/* Clear Movie Filters */}
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => {
+                  setMovieRating('');
+                  setMovieOffset(0);
+                }}
+                sx={{
+                  color: 'primary.main',
+                  textTransform: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Clear Movie Filters
+              </Button>
+            </Stack>
+          </Box>
+        )}
       </Box>
 
       {/* Results Count */}

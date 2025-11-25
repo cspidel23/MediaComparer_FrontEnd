@@ -73,8 +73,36 @@ export const tvApi = {
   getShows: (page: number = 1, limit: number = 50) => tvService.get<TVShowsResponse>(`/shows?page=${page}&limit=${limit}`),
 
   // Get filtered TV shows (paginated)
-  getFilteredShows: (page: number = 1, limit: number = 50, genres?: string) =>
-    tvService.get<TVShowsResponse>(`/shows/filter?page=${page}&limit=${limit}${genres ? `&genres=${genres}` : ''}`),
+  getFilteredShows: (
+    page: number = 1,
+    limit: number = 50,
+    name?: string,
+    genres?: string,
+    startDate?: string,
+    endDate?: string,
+    minRating?: number,
+    maxRating?: number,
+    network?: string,
+    status?: string,
+    actors?: string,
+    studios?: string,
+    creators?: string
+  ) => {
+    const nameParam = name ? `&name=${encodeURIComponent(name)}` : '';
+    const genresParam = genres ? `&genres=${genres}` : '';
+    const startDateParam = startDate ? `&startDate=${startDate}` : '';
+    const endDateParam = endDate ? `&endDate=${endDate}` : '';
+    const minRatingParam = minRating !== undefined ? `&min_rating=${minRating}` : '';
+    const maxRatingParam = maxRating !== undefined ? `&max_rating=${maxRating}` : '';
+    const networkParam = network ? `&network=${encodeURIComponent(network)}` : '';
+    const statusParam = status ? `&status=${encodeURIComponent(status)}` : '';
+    const actorsParam = actors ? `&actors=${encodeURIComponent(actors)}` : '';
+    const studiosParam = studios ? `&studios=${encodeURIComponent(studios)}` : '';
+    const creatorsParam = creators ? `&creators=${encodeURIComponent(creators)}` : '';
+    return tvService.get<TVShowsResponse>(
+      `/shows/filter?page=${page}&limit=${limit}${nameParam}${genresParam}${startDateParam}${endDateParam}${minRatingParam}${maxRatingParam}${networkParam}${statusParam}${actorsParam}${studiosParam}${creatorsParam}`
+    );
+  },
 
   // Get TV show by ID
   getShowById: (id: number) => tvService.get<TVShowDetailed>(`/shows/${id}`),
