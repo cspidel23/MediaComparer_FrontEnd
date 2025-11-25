@@ -29,6 +29,13 @@ const media: NavItemType = {
       icon: icons.AppstoreOutlined
     },
     {
+      id: 'add-media',
+      title: <FormattedMessage id="add-media" />,
+      type: 'item',
+      url: '/add-media',
+      icon: icons.PlusCircleOutlined
+    },
+    {
       id: 'compare',
       title: <FormattedMessage id="compare" />,
       type: 'item',

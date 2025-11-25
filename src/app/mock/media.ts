@@ -285,7 +285,7 @@ const MOCK_TV_SHOWS: (TVShow & { type: 'tv' })[] = [
     episodes: 62,
     status: 'Ended',
     overview:
-      'Breaking Bad follows protagonist Walter White, a chemistry teacher who lives in New Mexico with his wife and teenage son who has cerebral palsy. White is diagnosed with Stage III cancer and given a prognosis of two years left to live. With a new sense of fearlessness based on his medical prognosis, and a desire to secure his family\'s financial security, White chooses to enter a dangerous world of drugs and crime and ascends to power in the world.',
+      "Breaking Bad follows protagonist Walter White, a chemistry teacher who lives in New Mexico with his wife and teenage son who has cerebral palsy. White is diagnosed with Stage III cancer and given a prognosis of two years left to live. With a new sense of fearlessness based on his medical prognosis, and a desire to secure his family's financial security, White chooses to enter a dangerous world of drugs and crime and ascends to power in the world.",
     popularity: 412.567,
     tmdb_rating: 8.9,
     vote_count: 13456,
@@ -422,7 +422,12 @@ const MOCK_TV_SHOWS: (TVShow & { type: 'tv' })[] = [
 ];
 
 // Mock Movies
-const MOCK_MOVIES: (Movie & { type: 'movie' })[] = [
+// Movies are now fetched from the Movie API
+const MOCK_MOVIES: (Movie & { type: 'movie' })[] = [];
+
+// Keeping old movie data commented out for reference
+/*
+const OLD_MOCK_MOVIES: (Movie & { type: 'movie' })[] = [
   {
     type: 'movie',
     movie_id: 603,
@@ -601,8 +606,8 @@ const MOCK_MOVIES: (Movie & { type: 'movie' })[] = [
   {
     type: 'movie',
     movie_id: 424,
-    title: 'Schindler\'s List',
-    original_title: 'Schindler\'s List',
+    title: "Schindler's List",
+    original_title: "Schindler's List",
     release_year: 1993,
     release_date: '1993-12-15T00:00:00.000Z',
     runtime_minutes: 195,
@@ -724,6 +729,7 @@ const MOCK_MOVIES: (Movie & { type: 'movie' })[] = [
     ]
   }
 ];
+*/
 
 export const MOCK_MEDIA: Media[] = [...MOCK_TV_SHOWS, ...MOCK_MOVIES];
 

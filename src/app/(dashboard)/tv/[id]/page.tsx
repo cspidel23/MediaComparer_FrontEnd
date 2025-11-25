@@ -1,15 +1,27 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Box, Container, Typography, Chip, Grid, Card, CardContent, Stack, Rating, Button } from '@mui/material';
+import { Box, Container, Typography, Chip, Grid, Card, Stack, Rating, Button } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import TvIcon from '@mui/icons-material/Tv';
-import { getById } from '../../../mock/media';
+import { tvApi } from 'services/tvApi';
+import NetworkInfo from 'components/media/NetworkInfo';
+import ActorCard from 'components/media/ActorCard';
+import ProductionCompany from 'components/media/ProductionCompany';
 
 export default async function TvPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const media = getById(id);
-  if (!media || media.type !== 'tv') notFound();
+
+  let media;
+  try {
+    const response = await tvApi.getShowById(Number(id));
+    media = response.data;
+  } catch (error) {
+    console.error('Error fetching TV show:', error);
+    notFound();
+  }
+
+  if (!media) notFound();
 
   const year = media.first_air_date ? new Date(media.first_air_date).getFullYear() : null;
 
@@ -130,15 +142,7 @@ export default async function TvPage({ params }: { params: Promise<{ id: string 
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                   NETWORK
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    component="img"
-                    src={media.network.logo}
-                    alt={media.network.name}
-                    sx={{ height: 40, objectFit: 'contain', bgcolor: 'white', p: 1, borderRadius: 1 }}
-                  />
-                  <Typography variant="body1">{media.network.name}</Typography>
-                </Box>
+                <NetworkInfo name={media.network.name} logo={media.network.logo} />
               </Box>
             </Card>
 
@@ -151,26 +155,7 @@ export default async function TvPage({ params }: { params: Promise<{ id: string 
                 <Grid container spacing={2}>
                   {media.actors.map((actor) => (
                     <Grid item xs={6} sm={4} md={3} key={actor.actor_id}>
-                      <Card variant="outlined">
-                        <Box
-                          component="img"
-                          src={actor.profile_url}
-                          alt={actor.name}
-                          sx={{
-                            width: '100%',
-                            aspectRatio: '2/3',
-                            objectFit: 'cover'
-                          }}
-                        />
-                        <CardContent sx={{ p: 1.5 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            {actor.name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {actor.character}
-                          </Typography>
-                        </CardContent>
-                      </Card>
+                      <ActorCard name={actor.name} character={actor.character} profileUrl={actor.profile_url} />
                     </Grid>
                   ))}
                 </Grid>
@@ -184,27 +169,18 @@ export default async function TvPage({ params }: { params: Promise<{ id: string 
                   Production Companies
                 </Typography>
                 <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
-                  {media.companies.map((company) => (
-                    <Box key={company.company_id} sx={{ textAlign: 'center' }}>
-                      <Box
-                        component="img"
-                        src={company.logo}
-                        alt={company.name}
-                        sx={{
-                          height: 50,
-                          maxWidth: 120,
-                          objectFit: 'contain',
-                          bgcolor: 'white',
-                          p: 1,
-                          borderRadius: 1,
-                          mb: 1
-                        }}
-                      />
-                      <Typography variant="caption" display="block">
-                        {company.name}
-                      </Typography>
-                    </Box>
-                  ))}
+                  {[...media.companies]
+                    .sort((a, b) => {
+                      // Companies with logos first, those without last
+                      const aHasLogo = a.logo && a.logo.trim() !== '';
+                      const bHasLogo = b.logo && b.logo.trim() !== '';
+                      if (aHasLogo && !bHasLogo) return -1;
+                      if (!aHasLogo && bHasLogo) return 1;
+                      return 0;
+                    })
+                    .map((company) => (
+                      <ProductionCompany key={company.company_id} name={company.name} logo={company.logo} />
+                    ))}
                 </Stack>
               </Card>
             )}
