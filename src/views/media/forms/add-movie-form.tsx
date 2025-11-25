@@ -21,7 +21,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 
 // project imports
-// import { movieApi } from 'services/movieApi';
+import { movieApi } from 'services/movieApi';
 
 interface MovieFormData {
   title: string;
@@ -87,16 +87,31 @@ export default function AddMovieForm() {
 
     try {
       // Validate required fields
-      if (!formData.title || !formData.release_year || !formData.director_name) {
-        throw new Error('Please fill in all required fields (Title, Release Year, Director Name)');
+      if (!formData.title || !formData.release_year) {
+        throw new Error('Please fill in all required fields (Title, Release Year)');
       }
 
-      // TODO: Replace with actual API call when endpoint is available
-      // For now, we'll just simulate a successful submission
-      console.log('Movie data to submit:', formData);
+      // Prepare data for API
+      const movieData = {
+        title: formData.title,
+        release_year: Number(formData.release_year),
+        runtime_minutes: formData.runtime_minutes ? Number(formData.runtime_minutes) : undefined,
+        rating: formData.rating || undefined,
+        box_office: formData.box_office || undefined,
+        director_id: formData.director_id ? Number(formData.director_id) : undefined,
+        country_id: formData.country_id ? Number(formData.country_id) : undefined,
+        overview: formData.overview || undefined,
+        budget: formData.budget || undefined,
+        studios: formData.studios || undefined,
+        poster_url: formData.poster_url || undefined,
+        backdrop_url: formData.backdrop_url || undefined,
+        collection: formData.collection || undefined,
+        original_title: formData.original_title || undefined,
+        mpa_rating: formData.mpa_rating || undefined
+      };
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call API
+      await movieApi.createMovie(movieData);
 
       setSuccess(true);
 

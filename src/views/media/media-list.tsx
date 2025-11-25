@@ -100,16 +100,34 @@ export default function MediaList() {
         // Fetch shows for current page (API limit is 100 per page)
         // Use filter endpoint if search query, genres, year, or other filters are selected
         const nameParam = searchQuery.trim() || undefined;
-        const genresParam = selectedGenres.length > 0 ? selectedGenres.map((id) => apiGenres.find((g) => g.genre_id === id)?.name).filter(Boolean).join(',') : undefined;
+        const genresParam =
+          selectedGenres.length > 0
+            ? selectedGenres
+                .map((id) => apiGenres.find((g) => g.genre_id === id)?.name)
+                .filter(Boolean)
+                .join(',')
+            : undefined;
         const startDate = selectedYear ? `${selectedYear}-01-01` : undefined;
         const endDate = selectedYear ? `${selectedYear}-12-31` : undefined;
         const minRating = tvMinRating !== '' ? tvMinRating : undefined;
         const network = tvNetwork.trim() || undefined;
         const status = tvStatus.trim() || undefined;
 
-        const response = nameParam || genresParam || startDate || minRating !== undefined || network || status
-          ? await tvApi.getFilteredShows(currentPage, 100, nameParam, genresParam, startDate, endDate, minRating, undefined, network, status)
-          : await tvApi.getShows(currentPage, 100);
+        const response =
+          nameParam || genresParam || startDate || minRating !== undefined || network || status
+            ? await tvApi.getFilteredShows(
+                currentPage,
+                100,
+                nameParam,
+                genresParam,
+                startDate,
+                endDate,
+                minRating,
+                undefined,
+                network,
+                status
+              )
+            : await tvApi.getShows(currentPage, 100);
 
         // Convert API TV shows to Media type format
         const convertedShows: Media[] = response.data.data.map((show) => ({
@@ -172,9 +190,8 @@ export default function MediaList() {
         } else {
           // Fetch movies for current offset (100 per page)
           // Movie API supports single genre filter, so use first selected genre
-          const genreParam = selectedGenres.length > 0 && apiGenres.length > 0
-            ? apiGenres.find((g) => g.genre_id === selectedGenres[0])?.name
-            : undefined;
+          const genreParam =
+            selectedGenres.length > 0 && apiGenres.length > 0 ? apiGenres.find((g) => g.genre_id === selectedGenres[0])?.name : undefined;
           const yearNum = selectedYear ? parseInt(selectedYear) : undefined;
           response = await movieApi.getMovies(100, movieOffset, genreParam, yearNum, yearNum);
         }
@@ -337,7 +354,25 @@ export default function MediaList() {
   }, []);
 
   // Common TV show networks
-  const tvNetworkOptions = ['ABC', 'CBS', 'NBC', 'FOX', 'The CW', 'HBO', 'Netflix', 'Amazon', 'Hulu', 'Disney+', 'Apple TV+', 'Showtime', 'AMC', 'FX', 'USA Network', 'TNT', 'Syfy'];
+  const tvNetworkOptions = [
+    'ABC',
+    'CBS',
+    'NBC',
+    'FOX',
+    'The CW',
+    'HBO',
+    'Netflix',
+    'Amazon',
+    'Hulu',
+    'Disney+',
+    'Apple TV+',
+    'Showtime',
+    'AMC',
+    'FX',
+    'USA Network',
+    'TNT',
+    'Syfy'
+  ];
 
   // TV show status options
   const tvStatusOptions = ['Returning Series', 'Ended', 'Canceled', 'In Production', 'Planned'];
@@ -1043,7 +1078,13 @@ export default function MediaList() {
                     {/* Show rating stars for TV shows only */}
                     {media.type === 'tv' && (
                       <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                        <Rating value={media.tmdb_rating / 2} readOnly precision={0.1} size="small" icon={<StarIcon fontSize="inherit" />} />
+                        <Rating
+                          value={media.tmdb_rating / 2}
+                          readOnly
+                          precision={0.1}
+                          size="small"
+                          icon={<StarIcon fontSize="inherit" />}
+                        />
                         <Typography variant="body2" color="text.secondary">
                           {media.tmdb_rating.toFixed(1)}
                         </Typography>
@@ -1053,9 +1094,7 @@ export default function MediaList() {
                     {/* Show MPA rating and genres for movies */}
                     {media.type === 'movie' && (
                       <Box sx={{ mb: 1 }}>
-                        {media.rating && (
-                          <Chip label={media.rating} size="small" color="primary" variant="outlined" sx={{ mb: 1 }} />
-                        )}
+                        {media.rating && <Chip label={media.rating} size="small" color="primary" variant="outlined" sx={{ mb: 1 }} />}
                         {media.genres.length > 0 && (
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
                             {media.genres.slice(0, 3).map((genre) => (

@@ -88,5 +88,24 @@ export const movieApi = {
   },
 
   // Get movie by ID
-  getMovieById: (movieId: number) => movieService.get<MovieDetailResponse>(`/api/v1/movies/search/id?movieId=${movieId}`)
+  getMovieById: (movieId: number) => movieService.get<MovieDetailResponse>(`/api/v1/movies/search/id?movieId=${movieId}`),
+
+  // Create a new movie
+  createMovie: (movieData: {
+    title: string;
+    release_year: number;
+    runtime_minutes?: number;
+    rating?: string;
+    box_office?: string;
+    director_id?: number;
+    country_id?: number;
+    overview?: string;
+    budget?: string;
+    studios?: string;
+    poster_url?: string;
+    backdrop_url?: string;
+    collection?: string;
+    original_title?: string;
+    mpa_rating?: string;
+  }) => movieService.post('/api/v1/movies', movieData)
 };

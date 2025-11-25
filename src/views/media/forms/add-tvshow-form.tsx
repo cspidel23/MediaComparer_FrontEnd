@@ -133,12 +133,29 @@ export default function AddTVShowForm() {
         throw new Error('Please fill in all required fields (Name, First Air Date, Seasons, Episodes)');
       }
 
-      // TODO: Replace with actual API call when endpoint is available
-      // For now, we'll just simulate a successful submission
-      console.log('TV Show data to submit:', formData);
+      // Prepare creators array
+      const creatorsArray = formData.creators ? formData.creators.split(',').map((c) => c.trim()) : undefined;
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Prepare data for API
+      const showData = {
+        name: formData.name,
+        original_name: formData.original_name || undefined,
+        first_air_date: formData.first_air_date,
+        last_air_date: formData.last_air_date || undefined,
+        status: formData.status,
+        overview: formData.overview || undefined,
+        seasons: Number(formData.seasons),
+        episodes: Number(formData.episodes),
+        tmdb_rating: formData.tmdb_rating ? Number(formData.tmdb_rating) : undefined,
+        popularity: formData.popularity ? Number(formData.popularity) : undefined,
+        poster_url: formData.poster_url || undefined,
+        backdrop_url: formData.backdrop_url || undefined,
+        creators: creatorsArray,
+        genres: formData.genres.length > 0 ? formData.genres : undefined
+      };
+
+      // Call API
+      await tvApi.createShow(showData);
 
       setSuccess(true);
 

@@ -108,5 +108,25 @@ export const tvApi = {
   getShowById: (id: number) => tvService.get<TVShowDetailed>(`/shows/${id}`),
 
   // Get all genres
-  getGenres: () => tvService.get<TVGenresResponse>('/genres')
+  getGenres: () => tvService.get<TVGenresResponse>('/genres'),
+
+  // Create a new TV show
+  createShow: (showData: {
+    name: string;
+    original_name?: string;
+    first_air_date: string;
+    last_air_date?: string;
+    status: string;
+    overview?: string;
+    seasons: number;
+    episodes: number;
+    tmdb_rating?: number;
+    popularity?: number;
+    poster_url?: string;
+    backdrop_url?: string;
+    creators?: string[];
+    genres?: number[];
+    networks?: number[];
+    companies?: number[];
+  }) => tvService.post('/admin/shows', showData)
 };
