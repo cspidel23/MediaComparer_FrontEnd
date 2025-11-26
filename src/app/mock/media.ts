@@ -1,3 +1,4 @@
+// media.ts
 // Genre type
 export type Genre = {
   genre_id: number;

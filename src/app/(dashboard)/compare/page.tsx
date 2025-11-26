@@ -1,3 +1,4 @@
+// compare\page.tsx
 import { Box, Container, Typography, Card, CardContent } from '@mui/material';
 import ConstructionIcon from '@mui/icons-material/Construction';
 

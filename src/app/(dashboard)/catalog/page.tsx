@@ -1,3 +1,4 @@
+// catalog\page.tsx
 import MediaList from 'views/media/media-list';
 
 // ==============================|| PAGE ||============================== //

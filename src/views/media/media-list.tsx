@@ -103,9 +103,9 @@ export default function MediaList() {
         const genresParam =
           selectedGenres.length > 0
             ? selectedGenres
-                .map((id) => apiGenres.find((g) => g.genre_id === id)?.name)
-                .filter(Boolean)
-                .join(',')
+              .map((id) => apiGenres.find((g) => g.genre_id === id)?.name)
+              .filter(Boolean)
+              .join(',')
             : undefined;
         const startDate = selectedYear ? `${selectedYear}-01-01` : undefined;
         const endDate = selectedYear ? `${selectedYear}-12-31` : undefined;
@@ -116,17 +116,17 @@ export default function MediaList() {
         const response =
           nameParam || genresParam || startDate || minRating !== undefined || network || status
             ? await tvApi.getFilteredShows(
-                currentPage,
-                100,
-                nameParam,
-                genresParam,
-                startDate,
-                endDate,
-                minRating,
-                undefined,
-                network,
-                status
-              )
+              currentPage,
+              100,
+              nameParam,
+              genresParam,
+              startDate,
+              endDate,
+              minRating,
+              undefined,
+              network,
+              status
+            )
             : await tvApi.getShows(currentPage, 100);
 
         // Convert API TV shows to Media type format
@@ -326,8 +326,18 @@ export default function MediaList() {
   // Confirm comparison and navigate
   // TODO: need the correct route for a different page where we do the comparison
   const confirmCompare = () => {
-    // For real app, likely pass selectedForCompare info (via context, state, query, etc.)
-    router.push('/compare');
+    if (selectedForCompare.length !== 2) return;
+
+    const [first, second] = selectedForCompare;
+
+    if (first.type !== second.type) {
+      alert('Please select two items of the same type to compare');
+      return;
+    }
+
+    const id = first.type === 'tv' ? first.show_id : first.movie_id;
+    const id2 = second.type === 'tv' ? second.show_id : second.movie_id;
+    router.push(`/compare-${first.type}s/${id}/${id2}`);
   };
 
   // Get all unique genres from TV API
@@ -987,171 +997,171 @@ export default function MediaList() {
 
       {/* Loading State */}
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
-      ) : /* Media Grid */
-      filteredMedia.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            No media found
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Try adjusting your filters or search query
-          </Typography>
-        </Box>
-      ) : (
-        <Grid container spacing={3}>
-          {filteredMedia.map((media) => {
-            const greyOut = (() => {
-              if (compareType === null) return false;
-              if (media.type !== compareType) return true;
-              if (selectedForCompare.length === 2 && !isSelectedForCompare(media)) return true;
-              return false;
-            })();
-            const disableInteraction = greyOut;
-            const selected = isSelectedForCompare(media);
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress />
+          </Box>
+        ) : /* Media Grid */
+        filteredMedia.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography variant="h6" color="text.secondary">
+              No media found
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Try adjusting your filters or search query
+            </Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {filteredMedia.map((media) => {
+              const greyOut = (() => {
+                if (compareType === null) return false;
+                if (media.type !== compareType) return true;
+                if (selectedForCompare.length === 2 && !isSelectedForCompare(media)) return true;
+                return false;
+              })();
+              const disableInteraction = greyOut;
+              const selected = isSelectedForCompare(media);
 
-            return (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={media.type === 'tv' ? media.show_id : media.movie_id}>
-                <Card
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    cursor: disableInteraction ? 'default' : 'pointer',
-                    transition: 'transform 0.2s, box-shadow 0.2s, filter 0.3s, opacity 0.3s',
-                    outline: 'none',
-                    filter: greyOut ? 'grayscale(80%)' : 'none',
-                    opacity: greyOut ? 0.5 : 1,
-                    pointerEvents: disableInteraction ? 'none' : 'auto',
-                    border: selected ? '4px solid' : 'none',
-                    borderColor: selected ? 'primary.main' : 'transparent',
-                    '&:hover': disableInteraction
-                      ? {}
-                      : {
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={media.type === 'tv' ? media.show_id : media.movie_id}>
+                  <Card
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      cursor: disableInteraction ? 'default' : 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s, filter 0.3s, opacity 0.3s',
+                      outline: 'none',
+                      filter: greyOut ? 'grayscale(80%)' : 'none',
+                      opacity: greyOut ? 0.5 : 1,
+                      pointerEvents: disableInteraction ? 'none' : 'auto',
+                      border: selected ? '4px solid' : 'none',
+                      borderColor: selected ? 'primary.main' : 'transparent',
+                      '&:hover': disableInteraction
+                        ? {}
+                        : {
                           transform: 'translateY(-8px)',
                           boxShadow: 6
                         },
-                    '&:focus-visible': {
-                      outline: '2px solid',
-                      outlineColor: 'primary.main',
-                      outlineOffset: '2px'
-                    }
-                  }}
-                  onClick={() => handleMediaClick(media)}
-                  tabIndex={0}
-                  aria-selected={selected}
-                >
-                  {/* Poster Image */}
-                  <CardMedia
-                    component="img"
-                    height="400"
-                    image={media.poster_url}
-                    alt={getTitle(media)}
-                    sx={{
-                      objectFit: 'cover',
-                      transition: 'filter 0.3s, opacity 0.3s',
-                      filter: greyOut ? 'grayscale(80%)' : 'none',
-                      opacity: greyOut ? 0.5 : 1
+                      '&:focus-visible': {
+                        outline: '2px solid',
+                        outlineColor: 'primary.main',
+                        outlineOffset: '2px'
+                      }
                     }}
-                  />
-
-                  <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                    <Box sx={{ mb: 1 }}>
-                      <Chip
-                        icon={media.type === 'movie' ? <MovieIcon /> : <TvIcon />}
-                        label={media.type === 'movie' ? 'Movie' : 'TV Show'}
-                        size="small"
-                        color={media.type === 'movie' ? 'primary' : 'secondary'}
-                      />
-                    </Box>
-
-                    <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, lineHeight: 1.2, mb: 1 }}>
-                      {getTitle(media)}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      {getYear(media)} • {getMetadata(media)}
-                    </Typography>
-
-                    {/* Show rating stars for TV shows only */}
-                    {media.type === 'tv' && (
-                      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                        <Rating
-                          value={media.tmdb_rating / 2}
-                          readOnly
-                          precision={0.1}
-                          size="small"
-                          icon={<StarIcon fontSize="inherit" />}
-                        />
-                        <Typography variant="body2" color="text.secondary">
-                          {media.tmdb_rating.toFixed(1)}
-                        </Typography>
-                      </Stack>
-                    )}
-
-                    {/* Show MPA rating and genres for movies */}
-                    {media.type === 'movie' && (
-                      <Box sx={{ mb: 1 }}>
-                        {media.rating && <Chip label={media.rating} size="small" color="primary" variant="outlined" sx={{ mb: 1 }} />}
-                        {media.genres.length > 0 && (
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                            {media.genres.slice(0, 3).map((genre) => (
-                              <Chip key={genre.genre_id} label={genre.name} size="small" variant="outlined" />
-                            ))}
-                          </Box>
-                        )}
-                      </Box>
-                    )}
-                  </CardContent>
-
-                  <CardActions
-                    sx={{
-                      px: 2,
-                      py: 2,
-                      pt: 1.5,
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      gap: 1
-                    }}
+                    onClick={() => handleMediaClick(media)}
+                    tabIndex={0}
+                    aria-selected={selected}
                   >
-                    <IconButton
-                      size="large"
-                      color="error"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Your delete handler here
-                      }}
+                    {/* Poster Image */}
+                    <CardMedia
+                      component="img"
+                      height="400"
+                      image={media.poster_url}
+                      alt={getTitle(media)}
                       sx={{
-                        '& svg': {
-                          fontSize: 28
-                        }
+                        objectFit: 'cover',
+                        transition: 'filter 0.3s, opacity 0.3s',
+                        filter: greyOut ? 'grayscale(80%)' : 'none',
+                        opacity: greyOut ? 0.5 : 1
                       }}
-                      aria-label="delete media"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    />
 
-                    <Button
-                      variant={selected ? 'contained' : 'outlined'}
-                      size="medium"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleCompare(media);
+                    <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                      <Box sx={{ mb: 1 }}>
+                        <Chip
+                          icon={media.type === 'movie' ? <MovieIcon /> : <TvIcon />}
+                          label={media.type === 'movie' ? 'Movie' : 'TV Show'}
+                          size="small"
+                          color={media.type === 'movie' ? 'primary' : 'secondary'}
+                        />
+                      </Box>
+
+                      <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, lineHeight: 1.2, mb: 1 }}>
+                        {getTitle(media)}
+                      </Typography>
+
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        {getYear(media)} • {getMetadata(media)}
+                      </Typography>
+
+                      {/* Show rating stars for TV shows only */}
+                      {media.type === 'tv' && (
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                          <Rating
+                            value={media.tmdb_rating / 2}
+                            readOnly
+                            precision={0.1}
+                            size="small"
+                            icon={<StarIcon fontSize="inherit" />}
+                          />
+                          <Typography variant="body2" color="text.secondary">
+                            {media.tmdb_rating.toFixed(1)}
+                          </Typography>
+                        </Stack>
+                      )}
+
+                      {/* Show MPA rating and genres for movies */}
+                      {media.type === 'movie' && (
+                        <Box sx={{ mb: 1 }}>
+                          {media.rating && <Chip label={media.rating} size="small" color="primary" variant="outlined" sx={{ mb: 1 }} />}
+                          {media.genres.length > 0 && (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                              {media.genres.slice(0, 3).map((genre) => (
+                                <Chip key={genre.genre_id} label={genre.name} size="small" variant="outlined" />
+                              ))}
+                            </Box>
+                          )}
+                        </Box>
+                      )}
+                    </CardContent>
+
+                    <CardActions
+                      sx={{
+                        px: 2,
+                        py: 2,
+                        pt: 1.5,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 1
                       }}
-                      aria-pressed={selected}
-                      startIcon={<CompareArrowsIcon />}
                     >
-                      Compare
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
-      )}
+                      <IconButton
+                        size="large"
+                        color="error"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Your delete handler here
+                        }}
+                        sx={{
+                          '& svg': {
+                            fontSize: 28
+                          }
+                        }}
+                        aria-label="delete media"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+
+                      <Button
+                        variant={selected ? 'contained' : 'outlined'}
+                        size="medium"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCompare(media);
+                        }}
+                        aria-pressed={selected}
+                        startIcon={<CompareArrowsIcon />}
+                      >
+                        Compare
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
 
       {/* Pagination - Show for all tabs */}
       {!loading && totalPages > 1 && (
