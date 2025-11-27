@@ -1,7 +1,11 @@
 {
+  "add-media": "Add Media",
   "browse-catalog": "Browse Catalog",
   "catalog": "Catalog",
   "compare": "Compare",
+
+  "account-settings": "Account Settings",
+
   "coming-soon": "Coming Soon",
   "contact-us": "Contact US",
   "documentation": "Documentation",
