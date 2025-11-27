@@ -45,3 +45,32 @@ also had an additional meeting of Brittmey and Cai on Thursday discussing the fi
 
 ### Beta 1 Sprint Comments
 Some difficulty due to possible sparce output on the different media API's. 
+
+
+## Beta Sprint 2 Contribution 
+ 
+#### Buruk 
+ connected both 3rd party API and did all of the front page logic with search and filteriong and also made pages for when you click on the media. also i designed and implemnted the add media page.
+#### Cai 
+
+Manage group communication, did the comparisons pages as well as the selection mechanism on the catalog page to navigate to said comparison pages 
+
+ 
+#### Victor 
+
+Fixed a documentation bug for the movie api 
+ 
+#### Brittney 
+
+Did the code for account, change password files and page. Linked to the Api to make it work so a user can change their password by clicking on account. Attended meetings and communicated.  
+
+ 
+#### Abdullahi 
+
+Fixed one major bug with our movie api 
+ 
+ 
+### Production Sprint Meetings 
+Meeting on Tuesday with Buruk, Cai, and Brittney where we decided on how to split up work and other project deliverables.  
+ 
+### Production Sprint Comments
