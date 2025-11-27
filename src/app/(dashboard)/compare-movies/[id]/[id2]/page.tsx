@@ -22,7 +22,14 @@ function intersectByName<T extends { name: string }>(arr1: T[], arr2: T[]): T[] 
 }
 
 
-export default async function CompareMoviesPage({ params }: { params: { id: string; id2: string } }) {
+type ComparePageProps = {
+  params: {
+    id: string;
+    id2: string;
+  };
+};
+
+export default async function CompareMoviesPage({ params }: ComparePageProps) {
   const { id, id2 } = params;
 
   let leftMovie, rightMovie;
