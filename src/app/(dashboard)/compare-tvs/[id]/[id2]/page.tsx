@@ -25,14 +25,7 @@ function intersectByName(arr1: { name: any }[], arr2: any[]) {
   return arr2.filter((g: { name: unknown }) => names1.has(g.name));
 }
 
-type ComparePageProps = {
-  params: {
-    id: string;
-    id2: string;
-  };
-};
-
-export default async function CompareTvsPage({ params }: ComparePageProps) {
+export default async function CompareTvsPage({ params }: any) {
   const { id, id2 } = params;
 
   let leftMedia;
