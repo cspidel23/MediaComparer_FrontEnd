@@ -246,11 +246,12 @@ export default async function CompareMoviesPage({ params }: any) {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* Hero */}
+
+      {/* Hero Header (reduced like TV page) */}
       <Box
         sx={{
           position: 'relative',
-          height: { xs: 350, md: 500 },
+          height: { xs: 250, md: 120 },
           backgroundImage: leftMovie.backdrop_url
             ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url(${`https://image.tmdb.org/t/p/original${leftMovie.backdrop_url}`})`
             : 'none',
@@ -260,15 +261,22 @@ export default async function CompareMoviesPage({ params }: any) {
           alignItems: 'flex-end'
         }}
       >
-        <Container maxWidth="xl" sx={{ pb: 4 }}>
-          <Button component={Link} href="/catalog" startIcon={<ArrowBackIcon />} sx={{ mb: 2, color: 'white' }}>
+        <Container maxWidth="xl" sx={{ pb: 3 }}>
+          <Button
+            component={Link}
+            href="/catalog"
+            startIcon={<ArrowBackIcon />}
+            sx={{ mb: 1, color: 'white' }}
+          >
             Back to Catalog
           </Button>
         </Container>
       </Box>
 
-      <Container maxWidth="xl" sx={{ mt: -10, position: 'relative', zIndex: 1 }}>
+      {/* Main content */}
+      <Container maxWidth="xl" sx={{ mt: 4, position: 'relative', zIndex: 1 }}>
         <Grid container spacing={4} alignItems="start">
+
           {/* Left Movie */}
           <Grid item xs={12} md={4}>
             <Card elevation={8}>
@@ -277,29 +285,84 @@ export default async function CompareMoviesPage({ params }: any) {
                   component="img"
                   src={`https://image.tmdb.org/t/p/w500${leftMovie.poster_url}`}
                   alt={leftMovie.title}
-                  sx={{ width: '100%', display: 'block', borderRadius: 1 }}
+                  sx={{
+                    width: '100%',
+                    display: 'block',
+                    borderRadius: 1
+                  }}
                 />
               )}
             </Card>
             {renderMovie(leftData)}
           </Grid>
 
-          {/* Comparison Section */}
-          <Grid item xs={12} md={4} sx={{ mt: 20 }}>
-            <Card sx={{ p: 3 }}>
-              <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, textAlign: 'center' }}>
+          {/* Comparison Section (sticky + centered) */}
+          <Grid
+            item
+            xs={12}
+            md={4}
+            sx={{
+              position: 'sticky',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              height: 'fit-content',
+              zIndex: 5,
+            }}
+          >
+            <Card
+              elevation={8}
+              sx={{
+                p: 4,
+                borderRadius: 2,
+                width: '100%',
+              }}
+            >
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ fontWeight: 700, textAlign: 'center' }}
+              >
                 Comparison
               </Typography>
+
               <Stack spacing={3}>
                 {comparisonFields.map((field) => (
-                  <Stack key={field.label} direction="row" alignItems="center" justifyContent="space-between">
-                    <Typography variant="body1" sx={{ fontWeight: 500, width: '30%', textAlign: 'right' }}>
+                  <Stack
+                    key={field.label}
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: 500,
+                        width: '30%',
+                        textAlign: 'right'
+                      }}
+                    >
                       {field.left}
                     </Typography>
-                    <Typography variant="subtitle1" sx={{ width: '40%', textAlign: 'center', fontWeight: 600 }}>
+
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        width: '40%',
+                        textAlign: 'center',
+                        fontWeight: 600
+                      }}
+                    >
                       {field.label}
                     </Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 500, width: '30%', textAlign: 'left' }}>
+
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: 500,
+                        width: '30%',
+                        textAlign: 'left'
+                      }}
+                    >
                       {field.right}
                     </Typography>
                   </Stack>
@@ -307,13 +370,28 @@ export default async function CompareMoviesPage({ params }: any) {
 
                 {/* Common Genres */}
                 <Box>
-                  <Typography variant="subtitle1" sx={{ textAlign: 'center', fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ textAlign: 'center', fontWeight: 600 }}
+                  >
                     Common Genres
                   </Typography>
+
                   {commonGenres.length > 0 ? (
-                    <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap" sx={{ mt: 1 }}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      justifyContent="center"
+                      flexWrap="wrap"
+                      sx={{ mt: 1 }}
+                    >
                       {commonGenres.map((genre, idx) => (
-                        <Chip key={idx} label={genre.name} variant="outlined" size="small" />
+                        <Chip
+                          key={idx}
+                          label={genre.name}
+                          variant="outlined"
+                          size="small"
+                        />
                       ))}
                     </Stack>
                   ) : (
@@ -325,9 +403,13 @@ export default async function CompareMoviesPage({ params }: any) {
 
                 {/* Common Actors */}
                 <Box>
-                  <Typography variant="subtitle1" sx={{ textAlign: 'center', fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ textAlign: 'center', fontWeight: 600 }}
+                  >
                     Common Actors
                   </Typography>
+
                   {commonActors.length > 0 ? (
                     <Stack spacing={1} maxHeight={200} overflow="auto" sx={{ mt: 1 }}>
                       {commonActors.slice(0, 5).map((actor, idx) => (
@@ -335,7 +417,11 @@ export default async function CompareMoviesPage({ params }: any) {
                           {actor.name} as {actor.character}
                         </Typography>
                       ))}
-                      {commonActors.length > 5 && <Typography textAlign="center">and {commonActors.length - 5} more...</Typography>}
+                      {commonActors.length > 5 && (
+                        <Typography textAlign="center">
+                          and {commonActors.length - 5} more...
+                        </Typography>
+                      )}
                     </Stack>
                   ) : (
                     <Typography textAlign="center" sx={{ mt: 1 }}>
@@ -355,14 +441,20 @@ export default async function CompareMoviesPage({ params }: any) {
                   component="img"
                   src={`https://image.tmdb.org/t/p/w500${rightMovie.poster_url}`}
                   alt={rightMovie.title}
-                  sx={{ width: '100%', display: 'block', borderRadius: 1 }}
+                  sx={{
+                    width: '100%',
+                    display: 'block',
+                    borderRadius: 1
+                  }}
                 />
               )}
             </Card>
             {renderMovie(rightData)}
           </Grid>
+
         </Grid>
       </Container>
     </Box>
   );
+
 }
