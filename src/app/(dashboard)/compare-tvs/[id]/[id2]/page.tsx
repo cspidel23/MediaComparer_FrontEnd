@@ -262,11 +262,16 @@ export default async function CompareTvsPage({ params }: any) {
             }}
           >
             <Card
-              elevation={8}
+              elevation={0}
               sx={{
                 p: 4,
-                borderRadius: 2,
+                borderRadius: 3,
                 width: '100%',
+                backdropFilter: 'blur(30px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
               }}
             >
               <Typography

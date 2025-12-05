@@ -52,6 +52,26 @@ interface TVShowFormData {
 
 const SHOW_STATUSES = ['Returning Series', 'Ended', 'Canceled', 'In Production', 'Planned', 'Pilot'];
 
+// Shared TextField styling from catalog page
+const textFieldStyles = {
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'background.paper',
+    borderRadius: 2,
+    transition: 'all 0.2s',
+    '&:hover': {
+      backgroundColor: 'action.hover',
+      boxShadow: 2
+    },
+    '&.Mui-focused': {
+      backgroundColor: 'background.paper',
+      boxShadow: 3,
+      '& fieldset': {
+        borderWidth: 2
+      }
+    }
+  }
+};
+
 export default function AddTVShowForm() {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
@@ -225,29 +245,28 @@ export default function AddTVShowForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <TextField
-                required
+              <TextField required
                 fullWidth
                 label="Name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="e.g., Breaking Bad"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 label="Original Name"
                 name="original_name"
                 value={formData.original_name}
                 onChange={handleChange}
                 placeholder="e.g., Breaking Bad"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 multiline
                 rows={4}
                 label="Overview"
@@ -255,6 +274,7 @@ export default function AddTVShowForm() {
                 value={formData.overview}
                 onChange={handleChange}
                 placeholder="Enter a brief description of the TV show..."
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -269,8 +289,7 @@ export default function AddTVShowForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                required
+              <TextField required
                 fullWidth
                 type="date"
                 label="First Air Date"
@@ -278,21 +297,22 @@ export default function AddTVShowForm() {
                 value={formData.first_air_date}
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 type="date"
                 label="Last Air Date"
                 name="last_air_date"
                 value={formData.last_air_date}
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={textFieldStyles}>
                 <InputLabel>Status</InputLabel>
                 <Select name="status" value={formData.status} onChange={handleSelectChange} label="Status">
                   {SHOW_STATUSES.map((status) => (
@@ -315,8 +335,7 @@ export default function AddTVShowForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <TextField
-                required
+              <TextField required
                 fullWidth
                 type="number"
                 label="Number of Seasons"
@@ -325,11 +344,11 @@ export default function AddTVShowForm() {
                 onChange={handleChange}
                 placeholder="e.g., 5"
                 inputProps={{ min: 1 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                required
+              <TextField required
                 fullWidth
                 type="number"
                 label="Number of Episodes"
@@ -338,6 +357,7 @@ export default function AddTVShowForm() {
                 onChange={handleChange}
                 placeholder="e.g., 62"
                 inputProps={{ min: 1 }}
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -350,14 +370,14 @@ export default function AddTVShowForm() {
           <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 600 }}>
             Creators
           </Typography>
-          <TextField
-            fullWidth
+          <TextField fullWidth
             label="Creators"
             name="creators"
             value={formData.creators}
             onChange={handleChange}
             placeholder="Comma-separated (e.g., Vince Gilligan, Peter Gould)"
             helperText="Enter creator names separated by commas"
+                sx={textFieldStyles}
           />
         </Box>
 
@@ -370,8 +390,7 @@ export default function AddTVShowForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 type="number"
                 label="TMDB Rating"
                 name="tmdb_rating"
@@ -379,11 +398,11 @@ export default function AddTVShowForm() {
                 onChange={handleChange}
                 placeholder="e.g., 8.9"
                 inputProps={{ min: 0, max: 10, step: 0.1 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 type="number"
                 label="Vote Count"
                 name="vote_count"
@@ -391,11 +410,11 @@ export default function AddTVShowForm() {
                 onChange={handleChange}
                 placeholder="e.g., 13456"
                 inputProps={{ min: 0 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 type="number"
                 label="Popularity"
                 name="popularity"
@@ -403,6 +422,7 @@ export default function AddTVShowForm() {
                 onChange={handleChange}
                 placeholder="e.g., 412.567"
                 inputProps={{ min: 0, step: 0.001 }}
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -417,18 +437,17 @@ export default function AddTVShowForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 label="Network Name"
                 name="network_name"
                 value={formData.network_name}
                 onChange={handleChange}
                 placeholder="e.g., AMC, Netflix, HBO"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 type="number"
                 label="Network ID"
                 name="network_id"
@@ -436,26 +455,27 @@ export default function AddTVShowForm() {
                 onChange={handleChange}
                 placeholder="Optional"
                 inputProps={{ min: 1 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 label="Network Logo URL"
                 name="network_logo"
                 value={formData.network_logo}
                 onChange={handleChange}
                 placeholder="https://image.tmdb.org/t/p/w500/..."
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 label="Network Country"
                 name="network_country"
                 value={formData.network_country}
                 onChange={handleChange}
                 placeholder="e.g., US, UK, CA"
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -470,7 +490,7 @@ export default function AddTVShowForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={textFieldStyles}>
                 <InputLabel>Genres</InputLabel>
                 <Select
                   multiple
@@ -496,13 +516,13 @@ export default function AddTVShowForm() {
               </FormControl>
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 label="Production Companies"
                 name="companies"
                 value={formData.companies}
                 onChange={handleChange}
                 placeholder="Semicolon-separated (e.g., High Bridge Productions;Sony Pictures Television)"
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -517,23 +537,23 @@ export default function AddTVShowForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 label="Poster URL"
                 name="poster_url"
                 value={formData.poster_url}
                 onChange={handleChange}
                 placeholder="https://image.tmdb.org/t/p/w500/..."
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
+              <TextField fullWidth
                 label="Backdrop URL"
                 name="backdrop_url"
                 value={formData.backdrop_url}
                 onChange={handleChange}
                 placeholder="https://image.tmdb.org/t/p/w500/..."
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -546,8 +566,7 @@ export default function AddTVShowForm() {
           <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 600 }}>
             Cast Information
           </Typography>
-          <TextField
-            fullWidth
+          <TextField fullWidth
             multiline
             rows={3}
             label="Actors (JSON Array)"
@@ -556,12 +575,32 @@ export default function AddTVShowForm() {
             onChange={handleChange}
             placeholder='[{"name": "Bryan Cranston", "character": "Walter White", "order_num": 1}]'
             helperText="Enter as a JSON array of objects with name, character, and order_num"
+                sx={textFieldStyles}
           />
         </Box>
 
         {/* Action Buttons */}
         <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
-          <Button variant="outlined" startIcon={<CancelIcon />} onClick={handleCancel} disabled={loading} size="large">
+          <Button
+            variant="outlined"
+            startIcon={<CancelIcon />}
+            onClick={handleCancel}
+            disabled={loading}
+            size="large"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 600,
+              transition: 'all 0.2s',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 2
+              }
+            }}
+          >
             Cancel
           </Button>
           <Button
@@ -570,6 +609,19 @@ export default function AddTVShowForm() {
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
             disabled={loading}
             size="large"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 600,
+              transition: 'all 0.2s',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 4
+              }
+            }}
           >
             {loading ? 'Adding...' : 'Add TV Show'}
           </Button>
