@@ -5,7 +5,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 export default function ComparePage() {
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
-      <Card elevation={3}>
+      <Card elevation={3} sx={{ opacity: 0.35 }}>
         <CardContent sx={{ textAlign: 'center', py: 8 }}>
           <Box sx={{ mb: 3 }}>
             <ConstructionIcon sx={{ fontSize: 80, color: '#faad14' }} />

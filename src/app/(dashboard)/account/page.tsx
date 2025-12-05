@@ -11,8 +11,30 @@ import {
   Typography,
   Button,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Box,
+  Container
 } from '@mui/material';
+
+// Shared TextField styling from catalog page
+const textFieldStyles = {
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'background.paper',
+    borderRadius: 2,
+    transition: 'all 0.2s',
+    '&:hover': {
+      backgroundColor: 'action.hover',
+      boxShadow: 2
+    },
+    '&.Mui-focused': {
+      backgroundColor: 'background.paper',
+      boxShadow: 3,
+      '& fieldset': {
+        borderWidth: 2
+      }
+    }
+  }
+};
 
 export default function AccountPage() {
   const { data: session } = useSession();
@@ -80,16 +102,41 @@ export default function AccountPage() {
   };
 
   return (
-    <Grid container justifyContent="center" sx={{ mt: 4 }}>
-      <Grid xs={12} md={8} lg={6}>
-        <Stack spacing={3}>
-          {/* Page Title */}
-          <Stack spacing={0.5}>
-            <Typography variant="h4">Account Settings</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Change the password for your MediaComparer account.
-            </Typography>
-          </Stack>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          mb: 5,
+          textAlign: 'center',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)',
+          borderRadius: 3,
+          py: 4,
+          px: 2
+        }}
+      >
+        <Typography
+          variant="h3"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 800,
+            mb: 1,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
+          Account Settings
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+          Change the password for your MediaComparer account
+        </Typography>
+      </Box>
+
+      <Grid container justifyContent="center">
+        <Grid xs={12}>
+          <Stack spacing={3}>
 
           {/* Alerts */}
           {successMsg && <Alert severity="success">{successMsg}</Alert>}
@@ -109,6 +156,7 @@ export default function AccountPage() {
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
+              sx={textFieldStyles}
             />
 
             <TextField
@@ -119,6 +167,7 @@ export default function AccountPage() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               helperText="Use at least 8 characters with a mix of letters and numbers."
+              sx={textFieldStyles}
             />
 
             <TextField
@@ -128,19 +177,33 @@ export default function AccountPage() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              sx={textFieldStyles}
             />
 
             <Stack direction="row" justifyContent="flex-end">
               <Button
                 type="submit"
                 variant="contained"
-                disableElevation
                 disabled={submitting}
-                sx={{ minWidth: 160 }}
+                size="large"
+                sx={{
+                  minWidth: 200,
+                  borderRadius: 2,
+                  px: 3,
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: 4
+                  }
+                }}
               >
                 {submitting ? (
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <CircularProgress size={18} />
+                    <CircularProgress size={18} color="inherit" />
                     <span>Updating…</span>
                   </Stack>
                 ) : (
@@ -152,6 +215,7 @@ export default function AccountPage() {
         </Stack>
       </Grid>
     </Grid>
+    </Container>
   );
 }
 

@@ -42,17 +42,38 @@ export default function AddMediaForm() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+      <Box
+        sx={{
+          mb: 5,
+          textAlign: 'center',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)',
+          borderRadius: 3,
+          py: 4,
+          px: 2
+        }}
+      >
+        <Typography
+          variant="h3"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 800,
+            mb: 1,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
           Add New Media
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
           Add a new movie or TV show to your catalog
         </Typography>
       </Box>
 
       {/* Tabs */}
-      <Paper sx={{ mb: 3 }}>
+      <Paper sx={{ mb: 3, borderRadius: 3, overflow: 'hidden' }}>
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
@@ -60,7 +81,13 @@ export default function AddMediaForm() {
           centered
           sx={{
             borderBottom: 1,
-            borderColor: 'divider'
+            borderColor: 'divider',
+            '& .MuiTab-root': {
+              transition: 'all 0.2s',
+              '&:hover': {
+                backgroundColor: 'action.hover'
+              }
+            }
           }}
         >
           <Tab
@@ -71,7 +98,8 @@ export default function AddMediaForm() {
             sx={{
               minHeight: 72,
               fontSize: '1.1rem',
-              fontWeight: 500
+              fontWeight: 600,
+              textTransform: 'none'
             }}
           />
           <Tab
@@ -82,7 +110,8 @@ export default function AddMediaForm() {
             sx={{
               minHeight: 72,
               fontSize: '1.1rem',
-              fontWeight: 500
+              fontWeight: 600,
+              textTransform: 'none'
             }}
           />
         </Tabs>
