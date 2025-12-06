@@ -74,3 +74,35 @@ Fixed one major bug with our movie api
 Meeting on Tuesday with Buruk, Cai, and Brittney where we decided on how to split up work and other project deliverables.  
  
 ### Production Sprint Comments
+N/A
+
+## Published Sprint Contribution
+
+#### Buruk
+
+I updated the button styling on all pages to be clean and consistent
+
+#### Cai
+
+Removed unnecessary buttons from the sidebar. Also improved formatting on the compare page and made it so the compare box displays as a box that remains on screen even when scrolling.
+
+
+#### Victor
+
+N/A
+
+#### Brittney
+
+Added Account settings to other user areas, did testing making sure things function properly, everything seems to be working great. I attended our group meeting and communicated.
+
+
+#### Abdullahi
+
+Fixed some bugs relating to access to database as well as email verification.
+
+
+### Production Sprint Meetings
+Usual meeting on Tuesday, Buruk, Cai, Brittney. We talked about final clean ups and bug report fixes.
+
+### Production Sprint Comments
+This was a great experience for all of us, we learned a lot along the way. We overcame obstacles, strengthening our problem solving and communication skills.  
