@@ -32,6 +32,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
+
           <Card sx={{ maxWidth: 300 }}>
             <CardContent sx={{ textAlign: 'center', p: 4 }}>
               <CompareArrowsIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
@@ -48,6 +49,9 @@ export default function Home() {
               </Link>
             </CardContent>
           </Card>
+
+
+
         </Stack>
       </Box>
     </Container>

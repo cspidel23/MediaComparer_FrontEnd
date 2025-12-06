@@ -1,5 +1,5 @@
 // project import
-import other from './other';
+// import other from './other';
 import media from './media';
 
 // types
@@ -8,7 +8,7 @@ import { NavItemType } from 'types/menu';
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems: { items: NavItemType[] } = {
-  items: [media, other]
+  items: [media]
 };
 
 export default menuItems;

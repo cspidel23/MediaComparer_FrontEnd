@@ -36,13 +36,7 @@ const media: NavItemType = {
       url: '/add-media',
       icon: icons.PlusCircleOutlined
     },
-    {
-      id: 'compare',
-      title: <FormattedMessage id="compare" />,
-      type: 'item',
-      url: '/compare',
-      icon: icons.SwapOutlined
-    },
+
 
     // =========================
     // ⭐ NEW ACCOUNT SETTINGS MENU ITEM

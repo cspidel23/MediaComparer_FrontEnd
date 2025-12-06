@@ -44,6 +44,26 @@ interface MovieFormData {
   actors: string;
 }
 
+// Shared TextField styling from catalog page
+const textFieldStyles = {
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'background.paper',
+    borderRadius: 2,
+    transition: 'all 0.2s',
+    '&:hover': {
+      backgroundColor: 'action.hover',
+      boxShadow: 2
+    },
+    '&.Mui-focused': {
+      backgroundColor: 'background.paper',
+      boxShadow: 3,
+      '& fieldset': {
+        borderWidth: 2
+      }
+    }
+  }
+};
+
 export default function AddMovieForm() {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
@@ -186,6 +206,24 @@ export default function AddMovieForm() {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="e.g., The Matrix"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: 'background.paper',
+                    borderRadius: 2,
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      boxShadow: 2
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: 'background.paper',
+                      boxShadow: 3,
+                      '& fieldset': {
+                        borderWidth: 2
+                      }
+                    }
+                  }
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -196,6 +234,7 @@ export default function AddMovieForm() {
                 value={formData.original_title}
                 onChange={handleChange}
                 placeholder="e.g., The Matrix"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12}>
@@ -208,6 +247,7 @@ export default function AddMovieForm() {
                 value={formData.overview}
                 onChange={handleChange}
                 placeholder="Enter a brief description of the movie..."
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -232,6 +272,7 @@ export default function AddMovieForm() {
                 onChange={handleChange}
                 placeholder="e.g., 1999"
                 inputProps={{ min: 1900, max: 2100 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
@@ -244,6 +285,7 @@ export default function AddMovieForm() {
                 onChange={handleChange}
                 placeholder="e.g., 136"
                 inputProps={{ min: 1 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
@@ -254,6 +296,7 @@ export default function AddMovieForm() {
                 value={formData.mpa_rating}
                 onChange={handleChange}
                 placeholder="e.g., R, PG-13, PG"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
@@ -264,6 +307,7 @@ export default function AddMovieForm() {
                 value={formData.rating}
                 onChange={handleChange}
                 placeholder="Additional rating info"
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -286,6 +330,7 @@ export default function AddMovieForm() {
                 value={formData.director_name}
                 onChange={handleChange}
                 placeholder="e.g., Christopher Nolan"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -298,6 +343,7 @@ export default function AddMovieForm() {
                 onChange={handleChange}
                 placeholder="Optional"
                 inputProps={{ min: 1 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -310,6 +356,7 @@ export default function AddMovieForm() {
                 onChange={handleChange}
                 placeholder="Country ID"
                 inputProps={{ min: 1 }}
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -320,6 +367,7 @@ export default function AddMovieForm() {
                 value={formData.studios}
                 onChange={handleChange}
                 placeholder="Semicolon-separated (e.g., Warner Bros;Legendary Pictures)"
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -334,7 +382,7 @@ export default function AddMovieForm() {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={textFieldStyles}>
                 <InputLabel>Box Office</InputLabel>
                 <OutlinedInput
                   name="box_office"
@@ -347,7 +395,7 @@ export default function AddMovieForm() {
               </FormControl>
             </Grid>
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={textFieldStyles}>
                 <InputLabel>Budget</InputLabel>
                 <OutlinedInput
                   name="budget"
@@ -378,6 +426,7 @@ export default function AddMovieForm() {
                 value={formData.genres}
                 onChange={handleChange}
                 placeholder="Comma-separated (e.g., Action, Sci-Fi, Thriller)"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -388,6 +437,7 @@ export default function AddMovieForm() {
                 value={formData.collection}
                 onChange={handleChange}
                 placeholder="e.g., The Matrix Collection"
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -398,6 +448,7 @@ export default function AddMovieForm() {
                 value={formData.poster_url}
                 onChange={handleChange}
                 placeholder="https://image.tmdb.org/t/p/w500/..."
+                sx={textFieldStyles}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -408,6 +459,7 @@ export default function AddMovieForm() {
                 value={formData.backdrop_url}
                 onChange={handleChange}
                 placeholder="https://image.tmdb.org/t/p/w500/..."
+                sx={textFieldStyles}
               />
             </Grid>
           </Grid>
@@ -430,12 +482,32 @@ export default function AddMovieForm() {
             onChange={handleChange}
             placeholder='[{"name": "Keanu Reeves", "character": "Neo"}]'
             helperText="Enter as a JSON array of objects"
+            sx={textFieldStyles}
           />
         </Box>
 
         {/* Action Buttons */}
         <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
-          <Button variant="outlined" startIcon={<CancelIcon />} onClick={handleCancel} disabled={loading} size="large">
+          <Button
+            variant="outlined"
+            startIcon={<CancelIcon />}
+            onClick={handleCancel}
+            disabled={loading}
+            size="large"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 600,
+              transition: 'all 0.2s',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 2
+              }
+            }}
+          >
             Cancel
           </Button>
           <Button
@@ -444,6 +516,19 @@ export default function AddMovieForm() {
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
             disabled={loading}
             size="large"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 600,
+              transition: 'all 0.2s',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 4
+              }
+            }}
           >
             {loading ? 'Adding...' : 'Add Movie'}
           </Button>

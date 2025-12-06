@@ -208,7 +208,7 @@ export default async function CompareTvsPage({ params }: any) {
       <Box
         sx={{
           position: 'relative',
-          height: { xs: 350, md: 650 }, // EXTENDED DOWNWARD
+          height: { xs: 250, md: 120 }, // EXTENDED DOWNWARD
           backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url(${leftMedia.backdrop_url})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -216,19 +216,19 @@ export default async function CompareTvsPage({ params }: any) {
           alignItems: 'flex-end'
         }}
       >
-        <Container maxWidth="xl" sx={{ pb: 4 }}>
+        <Container maxWidth="xl" sx={{ pb: 3 }}>
           <Button
             component={Link}
             href="/catalog"
             startIcon={<ArrowBackIcon />}
-            sx={{ mb: 2, color: 'white' }}
+            sx={{ mb: 1, color: 'white' }}
           >
             Back to Catalog
           </Button>
         </Container>
       </Box>
 
-      <Container maxWidth="xl" sx={{ mt: -15, position: 'relative', zIndex: 1 }}>
+      <Container maxWidth="xl" sx={{ mt: 4, position: 'relative', zIndex: 1 }}>
         <Grid container spacing={4} alignItems="start">
           {/* Left Show */}
           <Grid item xs={12} md={4}>
@@ -248,8 +248,32 @@ export default async function CompareTvsPage({ params }: any) {
           </Grid>
 
           {/* Comparison Section */}
-          <Grid item xs={12} md={4} sx={{ mt: 20 }}>
-            <Card sx={{ p: 3 }}>
+          {/* Comparison Section */}
+          <Grid
+            item
+            xs={12}
+            md={4}
+            sx={{
+              position: 'sticky',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              height: 'fit-content',
+              zIndex: 5,
+            }}
+          >
+            <Card
+              elevation={0}
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                width: '100%',
+                backdropFilter: 'blur(30px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+              }}
+            >
               <Typography
                 variant="h3"
                 gutterBottom
@@ -365,6 +389,7 @@ export default async function CompareTvsPage({ params }: any) {
               </Stack>
             </Card>
           </Grid>
+
 
           {/* Right Show */}
           <Grid item xs={12} md={4}>

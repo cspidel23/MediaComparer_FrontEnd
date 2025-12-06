@@ -16,6 +16,7 @@ import Popper from '@mui/material/Popper';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 
 // project import
 import Avatar from 'components/@extended/Avatar';
@@ -27,6 +28,7 @@ import useUser from 'hooks/useUser';
 
 // assets
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
+import SettingOutlined from '@ant-design/icons/SettingOutlined';
 
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
@@ -38,6 +40,11 @@ export default function Profile() {
   const handleLogout = () => {
     signOut({ redirect: false });
     router.push('/login');
+  };
+
+  const handleAccountSettings = () => {
+    setOpen(false);          // close the popper
+    router.push('/account'); // go to your Account Settings page
   };
 
   const anchorRef = useRef<any>(null);
@@ -115,7 +122,8 @@ export default function Profile() {
             >
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard elevation={0} border={false} content={false}>
-                  <CardContent sx={{ px: 2.5, pt: 3 }}>
+                  {/* Top section: avatar + email + logout icon */}
+                  <CardContent sx={{ px: 2.5, pt: 3, pb: 2 }}>
                     <Grid container justifyContent="space-between" alignItems="center">
                       <Grid item>
                         {user && (
@@ -138,6 +146,19 @@ export default function Profile() {
                         </Tooltip>
                       </Grid>
                     </Grid>
+                  </CardContent>
+
+                  {/* Bottom section: Account Settings button */}
+                  <CardContent sx={{ px: 2.5, pt: 0, pb: 2.5 }}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      color="secondary"
+                      startIcon={<SettingOutlined />}
+                      onClick={handleAccountSettings}
+                    >
+                      Account Settings
+                    </Button>
                   </CardContent>
                 </MainCard>
               </ClickAwayListener>
