@@ -1,3 +1,5 @@
+"use client";
+
 import CodeVerification from 'views/auth/code-verification';
 
 // ==============================|| PAGE ||============================== //

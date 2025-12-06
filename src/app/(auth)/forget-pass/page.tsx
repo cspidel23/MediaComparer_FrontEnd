@@ -1,3 +1,5 @@
+"use client";
+
 import ForgotPassword from 'views/auth/forgot-password';
 
 // ==============================|| PAGE ||============================== //

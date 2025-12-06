@@ -1,3 +1,5 @@
+"use client";
+
 import ResetPassword from 'views/auth/reset-password';
 
 // ==============================|| PAGE ||============================== //
